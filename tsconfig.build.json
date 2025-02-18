@@ -1,0 +1,6 @@
+{
+  "references": [
+    { "path": "./tsconfig.commonjs.json" },
+    { "path": "./tsconfig.esm.json" }
+  ]
+}

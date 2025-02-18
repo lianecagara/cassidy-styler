@@ -842,7 +842,13 @@ const fonts: Record<string, Record<string, string>> = {
     9: "𝟡",
     0: "𝟘",
   },
+} as const;
+
+type FontKey = keyof typeof fonts;
+type FontsProxy = {
+  [K in FontKey]: (text: string) => string;
 };
+
 
 const FontSystem = {
   applyFonts(text: string, font: string = "none"): string {
@@ -864,21 +870,21 @@ const FontSystem = {
     return fontList;
   },
   fontMap: fonts,
-  get fonts() {
+  get FontsProxy() {
     return new Proxy(
       { ...fonts },
       {
         get(target: typeof fonts, prop: string | symbol) {
           if (prop in target && typeof prop === "string") {
             return function (text: string) {
-              return FontSystem.applyFonts(String(text), prop);
+              return FontSystem.applyFonts(String(text), prop as FontKey);
             };
           } else {
             return (i: string) => typeof i;
           }
         },
       }
-    );
+    ) as FontsProxy;
   },
 };
 

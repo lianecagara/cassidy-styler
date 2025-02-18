@@ -4,7 +4,8 @@
   "description": "Style your texts using unicode with ease!",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node createDirs.js && tsc --build tsconfig.build.json"
   },
   "author": "@lianecagara",
   "license": "ISC",
