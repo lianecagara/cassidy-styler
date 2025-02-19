@@ -8,9 +8,10 @@ interface FormatOptions {
     titleFont?: FontTypes;
     contentFont?: FontTypes;
     titlePattern?: string;
+    noFormat?: boolean;
 }
 declare function format(title: string, content: string): string;
-declare function format({ title, content, contentFont, titleFont, titlePattern, }: FormatOptions): string;
+declare function format({ title, content, contentFont, titleFont, titlePattern, noFormat, }: FormatOptions): string;
 declare class UNIRedux {
     /** Special invisible space character */
     static specialSpace: string;

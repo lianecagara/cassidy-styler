@@ -27,6 +27,7 @@ interface FormatOptions {
   titleFont?: FontTypes;
   contentFont?: FontTypes;
   titlePattern?: string;
+  noFormat?: boolean;
 }
 
 export function format(title: string, content: string): string;
@@ -37,6 +38,7 @@ export function format({
   contentFont,
   titleFont,
   titlePattern,
+  noFormat,
 }: FormatOptions): string;
 
 export function format(arg1: string | FormatOptions, arg2?: string): string {
@@ -53,9 +55,10 @@ export function format(arg1: string | FormatOptions, arg2?: string): string {
   options.titleFont ??= "bold";
   options.contentFont ??= "none";
   options.titlePattern ??= undefined;
+  options.noFormat ??= false;
 
   return `${fonts[options.titleFont](
-    options.titlePattern
+    !options.noFormat
       ? forceTitleFormat(options.title, options.titlePattern)
       : options.title
   )}\n${UNIRedux.standardLine}\n${fonts[options.contentFont](options.content)}`;

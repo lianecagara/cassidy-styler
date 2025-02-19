@@ -896,7 +896,7 @@ function forceTitleFormat(str, pattern) {
   return res;
 }
 function format(arg1, arg2) {
-  var _a, _b, _c;
+  var _a, _b, _c, _d;
   let options;
   if (typeof arg1 === "string" && typeof arg2 === "string") {
     options = { title: arg1, content: arg2 };
@@ -908,8 +908,9 @@ function format(arg1, arg2) {
   (_a = options.titleFont) != null ? _a : options.titleFont = "bold";
   (_b = options.contentFont) != null ? _b : options.contentFont = "none";
   (_c = options.titlePattern) != null ? _c : options.titlePattern = void 0;
+  (_d = options.noFormat) != null ? _d : options.noFormat = false;
   return `${fonts2[options.titleFont](
-    options.titlePattern ? forceTitleFormat(options.title, options.titlePattern) : options.title
+    !options.noFormat ? forceTitleFormat(options.title, options.titlePattern) : options.title
   )}
 ${UNIRedux.standardLine}
 ${fonts2[options.contentFont](options.content)}`;
