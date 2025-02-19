@@ -33,11 +33,13 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 
 // src/index.ts
 var index_exports = {};
 __export(index_exports, {
-  FontSystem: () => font_default
+  FontSystem: () => font_default,
+  UNIRedux: () => UNIRedux
 });
 module.exports = __toCommonJS(index_exports);
 
@@ -880,8 +882,140 @@ var allFonts = FontSystem.allFonts;
 var fontMap = FontSystem.fontMap;
 var fonts2 = FontSystem.fonts;
 var font_default = FontSystem;
+
+// src/index.ts
+var line = "\u2501";
+var UNIRedux = class {
+};
+/** Special invisible space character */
+__publicField(UNIRedux, "specialSpace", "\u1160");
+/** Standard line repeated 1 time */
+__publicField(UNIRedux, "singleLine", line);
+/** Burger menu icon */
+__publicField(UNIRedux, "burger", "\u2630");
+/** Standard line repeated 15 times */
+__publicField(UNIRedux, "standardLine", line.repeat(15));
+/** Section sign */
+__publicField(UNIRedux, "section", "\xA7");
+/** Pilcrow sign */
+__publicField(UNIRedux, "paragraph", "\xB6");
+/** Registered trademark sign */
+__publicField(UNIRedux, "registered", "\xAE");
+/** Trademark sign */
+__publicField(UNIRedux, "trademark", "\u2122");
+/** Copyright sign */
+__publicField(UNIRedux, "copyright", "\xA9");
+/** Degree sign */
+__publicField(UNIRedux, "degree", "\xB0");
+/** Micro sign */
+__publicField(UNIRedux, "micro", "\xB5");
+/** Bullet point */
+__publicField(UNIRedux, "bullet", "\u2022");
+/** En dash */
+__publicField(UNIRedux, "enDash", "\u2013");
+/** Em dash */
+__publicField(UNIRedux, "emDash", "\u2014");
+/** Prime symbol */
+__publicField(UNIRedux, "prime", "\u2032");
+/** Double prime symbol */
+__publicField(UNIRedux, "doublePrime", "\u2033");
+/** Dagger symbol */
+__publicField(UNIRedux, "daggers", "\u2020");
+/** Double dagger symbol */
+__publicField(UNIRedux, "doubleDagger", "\u2021");
+/** Ellipsis */
+__publicField(UNIRedux, "ellipsis", "\u2026");
+/** Infinity symbol */
+__publicField(UNIRedux, "infinity", "\u221E");
+/** Generic currency sign */
+__publicField(UNIRedux, "currency", "\xA4");
+/** Yen sign */
+__publicField(UNIRedux, "yen", "\xA5");
+/** Euro sign */
+__publicField(UNIRedux, "euro", "\u20AC");
+/** Pound sign */
+__publicField(UNIRedux, "pound", "\xA3");
+/** Plus-minus sign */
+__publicField(UNIRedux, "plusMinus", "\xB1");
+/** Approximately equal sign */
+__publicField(UNIRedux, "approximately", "\u2248");
+/** Not equal to sign */
+__publicField(UNIRedux, "notEqual", "\u2260");
+/** Less than or equal to sign */
+__publicField(UNIRedux, "lessThanOrEqual", "\u2264");
+/** Greater than or equal to sign */
+__publicField(UNIRedux, "greaterThanOrEqual", "\u2265");
+/** Summation sign */
+__publicField(UNIRedux, "summation", "\u2211");
+/** Integral sign */
+__publicField(UNIRedux, "integral", "\u222B");
+/** Square root sign */
+__publicField(UNIRedux, "squareRoot", "\u221A");
+/** Partial differential sign */
+__publicField(UNIRedux, "partialDifferential", "\u2202");
+/** Angle symbol */
+__publicField(UNIRedux, "angle", "\u2220");
+/** Degree Fahrenheit sign */
+__publicField(UNIRedux, "degreeFahrenheit", "\u2109");
+/** Degree Celsius sign */
+__publicField(UNIRedux, "degreeCelsius", "\u2103");
+/** Floral Heart symbol */
+__publicField(UNIRedux, "floralHeart", "\u2767");
+/** Star Flower symbol */
+__publicField(UNIRedux, "starFlower", "\u273B");
+/** Heavy Star symbol */
+__publicField(UNIRedux, "heavyStar", "\u2605");
+/** Sparkle symbol */
+__publicField(UNIRedux, "sparkle", "\u2726");
+/** Asterisk symbol */
+__publicField(UNIRedux, "asterisk", "\u2731");
+/** Heavy Check Mark */
+__publicField(UNIRedux, "heavyCheckMark", "\u2714");
+/** Heavy Ballot X */
+__publicField(UNIRedux, "heavyBallotX", "\u2716");
+/** Heart symbol */
+__publicField(UNIRedux, "heart", "\u2665");
+/** Diamond symbol */
+__publicField(UNIRedux, "diamond", "\u2666");
+/** Club symbol */
+__publicField(UNIRedux, "club", "\u2663");
+/** Spade symbol */
+__publicField(UNIRedux, "spade", "\u2660");
+/** Musical Note symbol */
+__publicField(UNIRedux, "musicalNote", "\u266A");
+/** Double Musical Note symbol */
+__publicField(UNIRedux, "doubleMusicalNote", "\u266B");
+/** Snowflake symbol */
+__publicField(UNIRedux, "snowflake", "\u2744");
+/** Sparkle Star symbol */
+__publicField(UNIRedux, "sparkleStar", "\u2728");
+/** Anchor symbol */
+__publicField(UNIRedux, "anchor", "\u2693");
+/** Umbrella symbol */
+__publicField(UNIRedux, "umbrella", "\u2614");
+/** Hourglass symbol */
+__publicField(UNIRedux, "hourglass", "\u231B");
+/** Hourglass Not Done symbol */
+__publicField(UNIRedux, "hourglassNotDone", "\u23F3");
+/** Charm symbol */
+__publicField(UNIRedux, "charm", "\u2726");
+/** Disc symbol */
+__publicField(UNIRedux, "disc", "\u29BF");
+/** Arrow symbol */
+__publicField(UNIRedux, "arrow", "\u27A4");
+/** Arrow (Black and White) symbol */
+__publicField(UNIRedux, "arrowBW", "\u27A3");
+/** Arrow from Top symbol */
+__publicField(UNIRedux, "arrowFromT", "\u27A5");
+/** Arrow from Bottom symbol */
+__publicField(UNIRedux, "arrowFromB", "\u27A6");
+/** Restart symbol */
+__publicField(UNIRedux, "restart", "\u27F3");
+/** Arrow Outline symbol */
+__publicField(UNIRedux, "arrowOutline", "\u27A9");
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  FontSystem
+  FontSystem,
+  UNIRedux
 });
 //# sourceMappingURL=index.js.map

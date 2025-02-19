@@ -21,7 +21,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "downlevelIteration": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "target": "ESNext"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]

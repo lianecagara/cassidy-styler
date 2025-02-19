@@ -845,11 +845,27 @@ const fonts: Record<string, Record<string, string>> = {
 } as const;
 
 type FontsProxy = {
-  [K in keyof typeof fonts as string]: (text: string) => string;
+  [K in FontTypes]: (text: string) => string;
 };
 
+export type FontTypes =
+  | "bold"
+  | "fancy"
+  | "bold_italic"
+  | "fancy_italic"
+  | "redux"
+  | "widespace"
+  | "serif"
+  | "handwriting"
+  | "scriptbold"
+  | "script"
+  | "typewriter"
+  | "none"
+  | "moody"
+  | "double_struck";
+
 const FontSystem = {
-  applyFonts(text: string, font: string = "none"): string {
+  applyFonts(text: string, font: FontTypes = "none"): string {
     const formattedText = text
       .split("")
       .map((char: string | number) => fonts[font][char] || char)
@@ -863,7 +879,7 @@ const FontSystem = {
         .replace(/_/g, " ")
         .replace(/\b\w/g, (match) => match.toUpperCase());
 
-      fontList += this.fonts[font](someText) + "\n";
+      fontList += this.fonts[font as FontTypes](someText) + "\n";
     });
     return fontList;
   },
@@ -875,7 +891,7 @@ const FontSystem = {
         get(_, prop: string | symbol) {
           if (prop in fonts && typeof prop === "string") {
             return function (text: string) {
-              return FontSystem.applyFonts(String(text), prop);
+              return FontSystem.applyFonts(String(text), prop as FontTypes);
             };
           } else {
             return (i: string) => typeof i;
