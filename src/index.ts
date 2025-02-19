@@ -373,3 +373,300 @@ export function fontTag(text: string) {
   );
   return text;
 }
+
+type StrictMessageForm = {
+  body?: string;
+  attachment?: ReadableStream | ReadableStream[] | any | any[];
+  mentions?: Mention[];
+  location?: { latitude: number; longitude: number; current: boolean };
+};
+type MessageForm = string | StrictMessageForm;
+
+type FCAID = string | number;
+
+type Mention = {
+  tag: string;
+  id: FCAID;
+  fromIndex: number;
+};
+
+interface LiaIOQueue {
+  form: MessageForm;
+  senderID?: FCAID;
+  replyTo?: FCAID | undefined;
+  style?: FormatOptions;
+  resolve?: (value: any) => any;
+  reject?: (reason?: any) => any;
+  event?: any;
+  api?: any;
+}
+
+/**
+ * @lianecagara
+ * Class representing the LiaIOLite/Box for handling message input/output operations.
+ * This class is responsible for sending, replying, and receiving messages,
+ * as well as managing message reactions and handling events related to messages.
+ *
+ * @class Box
+ */
+export class Box {
+  #api: any = null;
+  #event: any = null;
+  public style: FormatOptions | undefined;
+
+  /**
+   * Creates an instance of the LiaIO class to manage message interactions.
+   *
+   * @param {API} api - The API instance for interacting with the messaging service.
+   * @param {FCAMessageReplyEvent | any} event - The event that triggered the interaction.
+   * @memberof Box
+   */
+  constructor(api: any, event: any, style?: FormatOptions) {
+    this.#api = api;
+    this.#event = event;
+    this.style = style;
+  }
+
+  static queue: LiaIOQueue[] = [];
+
+  /**
+   * Sends an output message, which can be a reply or a new message.
+   *
+   * @param params - The parameters for sending the message.
+   * @param params.form - The form of the message to be sent.
+   * @param params.senderID - The ID of the sender (optional).
+   * @param params.replyTo - The ID of the message being replied to (optional).
+   * @param style
+   * @returns A promise resolving to the sent message event.
+   * @memberof Box
+   */
+  async out(param0: {
+    form: MessageForm;
+    senderID?: FCAID;
+    replyTo?: FCAID;
+    style?: FormatOptions;
+  }): Promise<any> {
+    const {
+      form: oform,
+      senderID = this.#event.threadID,
+      replyTo = undefined,
+      style = null,
+    } = param0;
+    const form = normalizeMessageForm(oform) as StrictMessageForm;
+
+    let exMents: Mention[] = [];
+    if (typeof form.body === "string") {
+      const ments = form.body.match(/@\[(.*?)=(.*?)\]/g);
+      if (Array.isArray(ments)) {
+        for (const ment of ments) {
+          const [tag, uid] = ment.slice(2, -1).split("=");
+          form.body = form.body.replace(ment, `@${tag}`);
+          exMents.push({
+            id: uid,
+            tag,
+            fromIndex: form.body.indexOf(`@${tag}`),
+          });
+        }
+      }
+    }
+    let styler: FormatOptions | undefined = this.style;
+    if (style) {
+      styler = style;
+    }
+    if (styler && form.body && styler !== undefined) {
+      const combined: FormatOptions = {
+        ...styler,
+        content: form.body,
+      };
+      form.body = format(combined);
+    }
+
+    return new Promise(async (resolve, reject) => {
+      form.mentions = [...exMents, ...(form.mentions ?? [])];
+      for (const key in form) {
+        if (
+          form[key as keyof StrictMessageForm] === null ||
+          form[key as keyof StrictMessageForm] === undefined
+        ) {
+          delete form[key as keyof StrictMessageForm];
+        }
+        if (!form.mentions || form.mentions.length < 1) {
+          delete form.mentions;
+        }
+      }
+      console.log(`Form to send:`, form, senderID, replyTo);
+      /**
+       * @type {LiaIOQueue}
+       */
+      const queueItem: LiaIOQueue = {
+        ...param0,
+        senderID,
+        replyTo,
+        style: styler,
+        form,
+        resolve,
+        reject,
+        api: this.#api,
+        event: this.#event,
+      };
+      Box.queue.push(queueItem);
+
+      if (Box.queue.length === 1) {
+        Box._processQueue();
+      }
+    });
+  }
+
+  static async _processQueue() {
+    console.log(`Processing Queue..`);
+    while (this.queue.length > 0) {
+      const currentTask = this.queue[0];
+      console.log(
+        `Current Queue task (total ${this.queue.length}):`,
+        currentTask.form
+      );
+
+      if (this.queue.length > 1) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+
+      try {
+        console.log(`Sending form...`, currentTask.form);
+        const {
+          api,
+          form: oform,
+          reject,
+          resolve,
+          replyTo,
+          senderID,
+        } = currentTask;
+        const form = normalizeMessageForm(oform);
+        api.sendMessage(
+          form,
+          senderID,
+          (err: any, info: any) => {
+            if (err && reject) {
+              reject(err);
+            } else if (resolve) {
+              console.log(`Form sent:`, form, senderID, replyTo);
+
+              resolve(info);
+            }
+          },
+          replyTo ?? undefined
+        );
+      } catch (error) {
+        currentTask.reject?.(error);
+      }
+      this.queue.shift();
+      console.log(`Moving to next queue`);
+    }
+  }
+
+  /**
+   * Sends a reply to a message, optionally targeting a specific reply.
+   *
+   * @param form - The form of the reply message to be sent.
+   * @param replyTo - The ID of the message being replied to (optional).
+   * @returns A promise resolving to the message reply event.
+   * @memberof Box
+   * @example
+   * await liaIO.reply("Hello, world!");
+   */
+  reply(
+    form: MessageForm,
+    replyTo: FCAID = this.#event.messageID
+  ): Promise<any> {
+    return this.out({
+      form,
+      replyTo,
+    });
+  }
+  /**
+   * Sends a message to a destination, optionally specifying the destination ID.
+   *
+   * @param form - The form of the message to be sent.
+   * @param senderID - The ID of the destination to send the message to (optional).
+   * @memberof Box
+   * @example
+   * await liaIO.send("Hello, world!");
+   */
+  send(
+    form: MessageForm,
+    senderID: FCAID = this.#event.threadID
+  ): Promise<any> {
+    return this.out({
+      form,
+      senderID,
+    });
+  }
+
+  /**
+   * An easy way to handle errors.
+   *
+   * @param error - Error to be sent.
+   */
+  error(error: Error | Record<string, any>): Promise<any> {
+    const errString =
+      error instanceof Error
+        ? String(error.stack)
+        : JSON.stringify(error, null, 2);
+    console.error(error);
+    return this.reply(errString);
+  }
+
+  /**
+   * Adds a reaction to a message, optionally targeting a specific message to react to.
+   *
+   * @param emoji - The reaction to be added (e.g., "like", "love").
+   * @param reactTo - The ID of the message to react to (optional).
+   * @returns A promise resolving to the sent reaction event.
+   * @memberof Box
+   */
+  reaction(
+    emoji: string,
+    reactTo: FCAID = this.#event.messageID
+  ): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.#api.setMessageReaction(emoji, reactTo, (err: any) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(true);
+      });
+    });
+  }
+
+  clone(): Box {
+    return new Box(this.#api, this.#event, this.style);
+  }
+
+  styled(style: FormatOptions) {
+    return new Box(this.#api, this.#event, style);
+  }
+}
+
+function normalizeMessageForm(form: MessageForm): StrictMessageForm {
+  let r;
+  if (r) {
+    if (typeof form === "object") {
+      r = form;
+    }
+
+    if (typeof form === "string") {
+      r = {
+        body: form,
+      };
+    }
+    if (!Array.isArray(r.attachment) && r.attachment) {
+      r.attachment = [r.attachment];
+    }
+    return r;
+  } else {
+    return {
+      body: undefined,
+    };
+  }
+}
+
+export const LiaIOLite = Box;

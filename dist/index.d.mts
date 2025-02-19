@@ -186,5 +186,110 @@ declare function autoBold(text: string): string;
  * @returns The text with font tags replaced by corresponding font styles.
  */
 declare function fontTag(text: string): string;
+type StrictMessageForm = {
+    body?: string;
+    attachment?: ReadableStream | ReadableStream[] | any | any[];
+    mentions?: Mention[];
+    location?: {
+        latitude: number;
+        longitude: number;
+        current: boolean;
+    };
+};
+type MessageForm = string | StrictMessageForm;
+type FCAID = string | number;
+type Mention = {
+    tag: string;
+    id: FCAID;
+    fromIndex: number;
+};
+interface LiaIOQueue {
+    form: MessageForm;
+    senderID?: FCAID;
+    replyTo?: FCAID | undefined;
+    style?: FormatOptions;
+    resolve?: (value: any) => any;
+    reject?: (reason?: any) => any;
+    event?: any;
+    api?: any;
+}
+/**
+ * @lianecagara
+ * Class representing the LiaIOLite/Box for handling message input/output operations.
+ * This class is responsible for sending, replying, and receiving messages,
+ * as well as managing message reactions and handling events related to messages.
+ *
+ * @class Box
+ */
+declare class Box {
+    #private;
+    style: FormatOptions | undefined;
+    /**
+     * Creates an instance of the LiaIO class to manage message interactions.
+     *
+     * @param {API} api - The API instance for interacting with the messaging service.
+     * @param {FCAMessageReplyEvent | any} event - The event that triggered the interaction.
+     * @memberof Box
+     */
+    constructor(api: any, event: any, style?: FormatOptions);
+    static queue: LiaIOQueue[];
+    /**
+     * Sends an output message, which can be a reply or a new message.
+     *
+     * @param params - The parameters for sending the message.
+     * @param params.form - The form of the message to be sent.
+     * @param params.senderID - The ID of the sender (optional).
+     * @param params.replyTo - The ID of the message being replied to (optional).
+     * @param style
+     * @returns A promise resolving to the sent message event.
+     * @memberof Box
+     */
+    out(param0: {
+        form: MessageForm;
+        senderID?: FCAID;
+        replyTo?: FCAID;
+        style?: FormatOptions;
+    }): Promise<any>;
+    static _processQueue(): Promise<void>;
+    /**
+     * Sends a reply to a message, optionally targeting a specific reply.
+     *
+     * @param form - The form of the reply message to be sent.
+     * @param replyTo - The ID of the message being replied to (optional).
+     * @returns A promise resolving to the message reply event.
+     * @memberof Box
+     * @example
+     * await liaIO.reply("Hello, world!");
+     */
+    reply(form: MessageForm, replyTo?: FCAID): Promise<any>;
+    /**
+     * Sends a message to a destination, optionally specifying the destination ID.
+     *
+     * @param form - The form of the message to be sent.
+     * @param senderID - The ID of the destination to send the message to (optional).
+     * @memberof Box
+     * @example
+     * await liaIO.send("Hello, world!");
+     */
+    send(form: MessageForm, senderID?: FCAID): Promise<any>;
+    /**
+     * An easy way to handle errors.
+     *
+     * @param error - Error to be sent.
+     */
+    error(error: Error | Record<string, any>): Promise<any>;
+    /**
+     * Adds a reaction to a message, optionally targeting a specific message to react to.
+     *
+     * @param emoji - The reaction to be added (e.g., "like", "love").
+     * @param reactTo - The ID of the message to react to (optional).
+     * @returns A promise resolving to the sent reaction event.
+     * @memberof Box
+     */
+    reaction(emoji: string, reactTo?: FCAID): Promise<any>;
+    clone(): Box;
+    styled(style: FormatOptions): Box;
+}
+declare const LiaIOLite: typeof Box;
 
-export { UNIRedux, abbreviateNumber, autoBold, fontTag, forceTitleFormat, format };
+export { Box, LiaIOLite, UNIRedux, abbreviateNumber, autoBold, fontTag, forceTitleFormat, format };

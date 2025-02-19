@@ -7,6 +7,9 @@ var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getOwnPropSymbols = Object.getOwnPropertySymbols;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __propIsEnum = Object.prototype.propertyIsEnumerable;
+var __typeError = (msg) => {
+  throw TypeError(msg);
+};
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __spreadValues = (a, b) => {
   for (var prop in b || (b = {}))
@@ -34,11 +37,37 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
+var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
+var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value) : member.set(obj, value), value);
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
 
 // src/index.ts
 var index_exports = {};
 __export(index_exports, {
+  Box: () => Box,
   FontSystem: () => font_default,
+  LiaIOLite: () => LiaIOLite,
   UNIRedux: () => UNIRedux,
   abbreviateNumber: () => abbreviateNumber,
   autoBold: () => autoBold,
@@ -1112,9 +1141,239 @@ function fontTag(text) {
   );
   return text;
 }
+var _api, _event;
+var _Box = class _Box {
+  /**
+   * Creates an instance of the LiaIO class to manage message interactions.
+   *
+   * @param {API} api - The API instance for interacting with the messaging service.
+   * @param {FCAMessageReplyEvent | any} event - The event that triggered the interaction.
+   * @memberof Box
+   */
+  constructor(api, event, style) {
+    __privateAdd(this, _api, null);
+    __privateAdd(this, _event, null);
+    __publicField(this, "style");
+    __privateSet(this, _api, api);
+    __privateSet(this, _event, event);
+    this.style = style;
+  }
+  /**
+   * Sends an output message, which can be a reply or a new message.
+   *
+   * @param params - The parameters for sending the message.
+   * @param params.form - The form of the message to be sent.
+   * @param params.senderID - The ID of the sender (optional).
+   * @param params.replyTo - The ID of the message being replied to (optional).
+   * @param style
+   * @returns A promise resolving to the sent message event.
+   * @memberof Box
+   */
+  out(param0) {
+    return __async(this, null, function* () {
+      const {
+        form: oform,
+        senderID = __privateGet(this, _event).threadID,
+        replyTo = void 0,
+        style = null
+      } = param0;
+      const form = normalizeMessageForm(oform);
+      let exMents = [];
+      if (typeof form.body === "string") {
+        const ments = form.body.match(/@\[(.*?)=(.*?)\]/g);
+        if (Array.isArray(ments)) {
+          for (const ment of ments) {
+            const [tag, uid] = ment.slice(2, -1).split("=");
+            form.body = form.body.replace(ment, `@${tag}`);
+            exMents.push({
+              id: uid,
+              tag,
+              fromIndex: form.body.indexOf(`@${tag}`)
+            });
+          }
+        }
+      }
+      let styler = this.style;
+      if (style) {
+        styler = style;
+      }
+      if (styler && form.body && styler !== void 0) {
+        const combined = __spreadProps(__spreadValues({}, styler), {
+          content: form.body
+        });
+        form.body = format(combined);
+      }
+      return new Promise((resolve, reject) => __async(this, null, function* () {
+        var _a;
+        form.mentions = [...exMents, ...(_a = form.mentions) != null ? _a : []];
+        for (const key in form) {
+          if (form[key] === null || form[key] === void 0) {
+            delete form[key];
+          }
+          if (!form.mentions || form.mentions.length < 1) {
+            delete form.mentions;
+          }
+        }
+        console.log(`Form to send:`, form, senderID, replyTo);
+        const queueItem = __spreadProps(__spreadValues({}, param0), {
+          senderID,
+          replyTo,
+          style: styler,
+          form,
+          resolve,
+          reject,
+          api: __privateGet(this, _api),
+          event: __privateGet(this, _event)
+        });
+        _Box.queue.push(queueItem);
+        if (_Box.queue.length === 1) {
+          _Box._processQueue();
+        }
+      }));
+    });
+  }
+  static _processQueue() {
+    return __async(this, null, function* () {
+      var _a;
+      console.log(`Processing Queue..`);
+      while (this.queue.length > 0) {
+        const currentTask = this.queue[0];
+        console.log(
+          `Current Queue task (total ${this.queue.length}):`,
+          currentTask.form
+        );
+        if (this.queue.length > 1) {
+          yield new Promise((resolve) => setTimeout(resolve, 500));
+        }
+        try {
+          console.log(`Sending form...`, currentTask.form);
+          const {
+            api,
+            form: oform,
+            reject,
+            resolve,
+            replyTo,
+            senderID
+          } = currentTask;
+          const form = normalizeMessageForm(oform);
+          api.sendMessage(
+            form,
+            senderID,
+            (err, info) => {
+              if (err && reject) {
+                reject(err);
+              } else if (resolve) {
+                console.log(`Form sent:`, form, senderID, replyTo);
+                resolve(info);
+              }
+            },
+            replyTo != null ? replyTo : void 0
+          );
+        } catch (error) {
+          (_a = currentTask.reject) == null ? void 0 : _a.call(currentTask, error);
+        }
+        this.queue.shift();
+        console.log(`Moving to next queue`);
+      }
+    });
+  }
+  /**
+   * Sends a reply to a message, optionally targeting a specific reply.
+   *
+   * @param form - The form of the reply message to be sent.
+   * @param replyTo - The ID of the message being replied to (optional).
+   * @returns A promise resolving to the message reply event.
+   * @memberof Box
+   * @example
+   * await liaIO.reply("Hello, world!");
+   */
+  reply(form, replyTo = __privateGet(this, _event).messageID) {
+    return this.out({
+      form,
+      replyTo
+    });
+  }
+  /**
+   * Sends a message to a destination, optionally specifying the destination ID.
+   *
+   * @param form - The form of the message to be sent.
+   * @param senderID - The ID of the destination to send the message to (optional).
+   * @memberof Box
+   * @example
+   * await liaIO.send("Hello, world!");
+   */
+  send(form, senderID = __privateGet(this, _event).threadID) {
+    return this.out({
+      form,
+      senderID
+    });
+  }
+  /**
+   * An easy way to handle errors.
+   *
+   * @param error - Error to be sent.
+   */
+  error(error) {
+    const errString = error instanceof Error ? String(error.stack) : JSON.stringify(error, null, 2);
+    console.error(error);
+    return this.reply(errString);
+  }
+  /**
+   * Adds a reaction to a message, optionally targeting a specific message to react to.
+   *
+   * @param emoji - The reaction to be added (e.g., "like", "love").
+   * @param reactTo - The ID of the message to react to (optional).
+   * @returns A promise resolving to the sent reaction event.
+   * @memberof Box
+   */
+  reaction(emoji, reactTo = __privateGet(this, _event).messageID) {
+    return new Promise((resolve, reject) => {
+      __privateGet(this, _api).setMessageReaction(emoji, reactTo, (err) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(true);
+      });
+    });
+  }
+  clone() {
+    return new _Box(__privateGet(this, _api), __privateGet(this, _event), this.style);
+  }
+  styled(style) {
+    return new _Box(__privateGet(this, _api), __privateGet(this, _event), style);
+  }
+};
+_api = new WeakMap();
+_event = new WeakMap();
+__publicField(_Box, "queue", []);
+var Box = _Box;
+function normalizeMessageForm(form) {
+  let r;
+  if (r) {
+    if (typeof form === "object") {
+      r = form;
+    }
+    if (typeof form === "string") {
+      r = {
+        body: form
+      };
+    }
+    if (!Array.isArray(r.attachment) && r.attachment) {
+      r.attachment = [r.attachment];
+    }
+    return r;
+  } else {
+    return {
+      body: void 0
+    };
+  }
+}
+var LiaIOLite = Box;
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  Box,
   FontSystem,
+  LiaIOLite,
   UNIRedux,
   abbreviateNumber,
   autoBold,
