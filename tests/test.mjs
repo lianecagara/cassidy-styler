@@ -1,4 +1,4 @@
-import FontSystem from "../dist/font.mjs";
+import { FontSystem } from "../dist/index.mjs";
 console.log(FontSystem);
 import { applyFonts } from "../dist/font.mjs";
 console.log(FontSystem.allFonts());

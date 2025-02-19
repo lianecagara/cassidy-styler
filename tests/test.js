@@ -1,4 +1,4 @@
-const FontSystem = require("../dist/font.js");
+const { FontSystem } = require("../");
 console.log(FontSystem);
 console.log(FontSystem.default);
 

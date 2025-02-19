@@ -2,14 +2,22 @@
   "name": "cassidy-styler",
   "version": "1.0.0",
   "description": "Style your texts using unicode with ease!",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsup"
   },
+  "type": "commonjs",
   "exports": {
-    "require": "./index.js",
-    "import": "./index.mjs"
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    },
+    "./fonts": {
+      "require": "./dist/fonts.js",
+      "import": "./dist/fonts.mjs"
+    }
   },
   "author": "@lianecagara",
   "license": "ISC",
