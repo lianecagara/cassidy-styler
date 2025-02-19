@@ -886,4 +886,11 @@ const FontSystem = {
   },
 };
 
+export const applyFonts = FontSystem.applyFonts;
+export const allFonts = FontSystem.allFonts;
+export const fontMap = FontSystem.fontMap;
+
+const fonts2 = FontSystem.fonts;
+export { fonts2 as fonts };
+
 export default FontSystem;
