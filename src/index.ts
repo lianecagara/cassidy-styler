@@ -3,6 +3,13 @@ import { fonts, FontTypes } from "./font";
 
 const line = "━";
 
+/**
+ * Formats a title string by extracting and rearranging emojis and non-emoji characters based on a pattern.
+ *
+ * @param {string} str - The input string containing emojis and text.
+ * @param {string} [pattern] - The format pattern where `{word}` represents non-emoji text and `{emojis}` represents extracted emojis.
+ * @returns {string} - The formatted title string.
+ */
 export function forceTitleFormat(str: string, pattern?: string): string {
   pattern ??= `{word} ${UNIRedux.charm} {emojis}`;
   const emojiRegex = /\p{Emoji}/gu;
@@ -30,8 +37,14 @@ interface FormatOptions {
   noFormat?: boolean;
 }
 
+/**
+ * Formats title and content text.
+ */
 export function format(title: string, content: string): string;
 
+/**
+ * Formats title and content text with optional font styles and title patterns.
+ */
 export function format({
   title,
   content,
@@ -41,6 +54,9 @@ export function format({
   noFormat,
 }: FormatOptions): string;
 
+/**
+ * Formats title and content text with optional font styles and title patterns.
+ */
 export function format(arg1: string | FormatOptions, arg2?: string): string {
   let options: FormatOptions;
 
@@ -64,6 +80,10 @@ export function format(arg1: string | FormatOptions, arg2?: string): string {
   )}\n${UNIRedux.standardLine}\n${fonts[options.contentFont](options.content)}`;
 }
 
+/**
+ * A collection of special Unicode characters and symbols.
+ * Provides commonly used characters like line separators, trademarks, mathematical symbols, and more.
+ */
 export class UNIRedux {
   /** Special invisible space character */
   static specialSpace = "ᅠ";
@@ -253,4 +273,54 @@ export class UNIRedux {
 
   /** Arrow Outline symbol */
   static arrowOutline: "➩" = "➩";
+}
+
+/**
+ * Abbreviates a number using K (thousand), M (million), B (billion), etc.
+ *
+ * @param {number|string} value - The number to abbreviate.
+ * @param {number} [places=2] - The number of decimal places to round to.
+ * @param {boolean} [isFull=false] - If true, returns the full name instead of letter notation (e.g., "Thousand" instead of "K").
+ * @returns {string} - The abbreviated number.
+ */
+export function abbreviateNumber(
+  value: number | string,
+  places = 2,
+  isFull = false
+): string {
+  let num = Number(value);
+  if (isNaN(num)) return "Invalid input";
+  if (num < 1000) {
+    return num.toFixed(places).replace(/\.?0+$/, "");
+  }
+
+  const suffixes = ["", "K", "M", "B", "T", "P", "E"];
+  const fullSuffixes = [
+    "",
+    "Thousand",
+    "Million",
+    "Billion",
+    "Trillion",
+    "Quadrillion",
+    "Quintillion",
+  ];
+
+  const magnitude = Math.floor(Math.log10(num) / 3);
+
+  if (magnitude === 0) {
+    return num % 1 === 0
+      ? num.toString()
+      : num.toFixed(places).replace(/\.?0+$/, "");
+  }
+
+  const abbreviatedValue = num / Math.pow(1000, magnitude);
+  const suffix = isFull ? fullSuffixes[magnitude] : suffixes[magnitude];
+
+  if (abbreviatedValue % 1 === 0) {
+    return `${Math.round(abbreviatedValue)}${isFull ? ` ${suffix}` : suffix}`;
+  }
+
+  const formattedValue = abbreviatedValue.toFixed(places).replace(/\.?0+$/, "");
+
+  return `${formattedValue}${isFull ? ` ${suffix}` : suffix}`;
 }

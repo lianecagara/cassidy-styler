@@ -865,6 +865,13 @@ export type FontTypes =
   | "double_struck";
 
 const FontSystem = {
+  /**
+   * Applies a specified font style to a given text.
+   *
+   * @param {string} text - The input text to style.
+   * @param {FontTypes} [font="none"] - The font type to apply.
+   * @returns {string} - The formatted text.
+   */
   applyFonts(text: string, font: FontTypes = "none"): string {
     const formattedText = text
       .split("")
@@ -872,6 +879,10 @@ const FontSystem = {
       .join("");
     return formattedText;
   },
+
+  /**
+   * Retrieves a formatted list of all available font styles.
+   */
   allFonts(): string {
     let fontList = ``;
     Object.keys(fonts).forEach((font) => {
@@ -883,7 +894,13 @@ const FontSystem = {
     });
     return fontList;
   },
+  /**
+   * A direct reference to the font mapping object.
+   */
   fontMap: fonts,
+  /**
+   * Provides a proxy to dynamically apply fonts without explicitly calling `applyFonts`.
+   */
   get fonts() {
     return new Proxy(
       {},

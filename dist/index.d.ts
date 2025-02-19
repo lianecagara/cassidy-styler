@@ -1,6 +1,13 @@
 import { FontTypes } from './font.js';
 export { default as FontSystem } from './font.js';
 
+/**
+ * Formats a title string by extracting and rearranging emojis and non-emoji characters based on a pattern.
+ *
+ * @param {string} str - The input string containing emojis and text.
+ * @param {string} [pattern] - The format pattern where `{word}` represents non-emoji text and `{emojis}` represents extracted emojis.
+ * @returns {string} - The formatted title string.
+ */
 declare function forceTitleFormat(str: string, pattern?: string): string;
 interface FormatOptions {
     title: string;
@@ -10,8 +17,18 @@ interface FormatOptions {
     titlePattern?: string;
     noFormat?: boolean;
 }
+/**
+ * Formats title and content text.
+ */
 declare function format(title: string, content: string): string;
+/**
+ * Formats title and content text with optional font styles and title patterns.
+ */
 declare function format({ title, content, contentFont, titleFont, titlePattern, noFormat, }: FormatOptions): string;
+/**
+ * A collection of special Unicode characters and symbols.
+ * Provides commonly used characters like line separators, trademarks, mathematical symbols, and more.
+ */
 declare class UNIRedux {
     /** Special invisible space character */
     static specialSpace: string;
@@ -140,5 +157,14 @@ declare class UNIRedux {
     /** Arrow Outline symbol */
     static arrowOutline: "➩";
 }
+/**
+ * Abbreviates a number using K (thousand), M (million), B (billion), etc.
+ *
+ * @param {number|string} value - The number to abbreviate.
+ * @param {number} [places=2] - The number of decimal places to round to.
+ * @param {boolean} [isFull=false] - If true, returns the full name instead of letter notation (e.g., "Thousand" instead of "K").
+ * @returns {string} - The abbreviated number.
+ */
+declare function abbreviateNumber(value: number | string, places?: number, isFull?: boolean): string;
 
-export { UNIRedux, forceTitleFormat, format };
+export { UNIRedux, abbreviateNumber, forceTitleFormat, format };

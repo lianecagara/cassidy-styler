@@ -40,6 +40,7 @@ var index_exports = {};
 __export(index_exports, {
   FontSystem: () => font_default,
   UNIRedux: () => UNIRedux,
+  abbreviateNumber: () => abbreviateNumber,
   forceTitleFormat: () => forceTitleFormat,
   format: () => format
 });
@@ -849,10 +850,20 @@ var fonts = {
   }
 };
 var FontSystem = {
+  /**
+   * Applies a specified font style to a given text.
+   *
+   * @param {string} text - The input text to style.
+   * @param {FontTypes} [font="none"] - The font type to apply.
+   * @returns {string} - The formatted text.
+   */
   applyFonts(text, font = "none") {
     const formattedText = text.split("").map((char) => fonts[font][char] || char).join("");
     return formattedText;
   },
+  /**
+   * Retrieves a formatted list of all available font styles.
+   */
   allFonts() {
     let fontList = ``;
     Object.keys(fonts).forEach((font) => {
@@ -861,7 +872,13 @@ var FontSystem = {
     });
     return fontList;
   },
+  /**
+   * A direct reference to the font mapping object.
+   */
   fontMap: fonts,
+  /**
+   * Provides a proxy to dynamically apply fonts without explicitly calling `applyFonts`.
+   */
   get fonts() {
     return new Proxy(
       {},
@@ -1043,10 +1060,39 @@ __publicField(UNIRedux, "arrowFromB", "\u27A6");
 __publicField(UNIRedux, "restart", "\u27F3");
 /** Arrow Outline symbol */
 __publicField(UNIRedux, "arrowOutline", "\u27A9");
+function abbreviateNumber(value, places = 2, isFull = false) {
+  let num = Number(value);
+  if (isNaN(num)) return "Invalid input";
+  if (num < 1e3) {
+    return num.toFixed(places).replace(/\.?0+$/, "");
+  }
+  const suffixes = ["", "K", "M", "B", "T", "P", "E"];
+  const fullSuffixes = [
+    "",
+    "Thousand",
+    "Million",
+    "Billion",
+    "Trillion",
+    "Quadrillion",
+    "Quintillion"
+  ];
+  const magnitude = Math.floor(Math.log10(num) / 3);
+  if (magnitude === 0) {
+    return num % 1 === 0 ? num.toString() : num.toFixed(places).replace(/\.?0+$/, "");
+  }
+  const abbreviatedValue = num / Math.pow(1e3, magnitude);
+  const suffix = isFull ? fullSuffixes[magnitude] : suffixes[magnitude];
+  if (abbreviatedValue % 1 === 0) {
+    return `${Math.round(abbreviatedValue)}${isFull ? ` ${suffix}` : suffix}`;
+  }
+  const formattedValue = abbreviatedValue.toFixed(places).replace(/\.?0+$/, "");
+  return `${formattedValue}${isFull ? ` ${suffix}` : suffix}`;
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   FontSystem,
   UNIRedux,
+  abbreviateNumber,
   forceTitleFormat,
   format
 });

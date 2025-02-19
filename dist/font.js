@@ -847,10 +847,20 @@ var fonts = {
   }
 };
 var FontSystem = {
+  /**
+   * Applies a specified font style to a given text.
+   *
+   * @param {string} text - The input text to style.
+   * @param {FontTypes} [font="none"] - The font type to apply.
+   * @returns {string} - The formatted text.
+   */
   applyFonts(text, font = "none") {
     const formattedText = text.split("").map((char) => fonts[font][char] || char).join("");
     return formattedText;
   },
+  /**
+   * Retrieves a formatted list of all available font styles.
+   */
   allFonts() {
     let fontList = ``;
     Object.keys(fonts).forEach((font) => {
@@ -859,7 +869,13 @@ var FontSystem = {
     });
     return fontList;
   },
+  /**
+   * A direct reference to the font mapping object.
+   */
   fontMap: fonts,
+  /**
+   * Provides a proxy to dynamically apply fonts without explicitly calling `applyFonts`.
+   */
   get fonts() {
     return new Proxy(
       {},
