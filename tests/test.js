@@ -24,7 +24,7 @@ console.log(
     title: "Balance 💶",
     titleFont: "double_struck",
     contentFont: "fancy_italic",
-    content: "You have 1000$",
+    content: "You ***have*** 1000$",
   })
 );
 console.log(
@@ -33,6 +33,6 @@ console.log(
     titleFont: "double_struck",
     noFormat: true,
     contentFont: "fancy_italic",
-    content: "You have 1000$",
+    content: "You **have** 1000$",
   })
 );

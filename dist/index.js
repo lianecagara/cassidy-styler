@@ -41,6 +41,8 @@ __export(index_exports, {
   FontSystem: () => font_default,
   UNIRedux: () => UNIRedux,
   abbreviateNumber: () => abbreviateNumber,
+  autoBold: () => autoBold,
+  fontTag: () => fontTag,
   forceTitleFormat: () => forceTitleFormat,
   format: () => format
 });
@@ -912,25 +914,27 @@ function forceTitleFormat(str, pattern) {
   const res = pattern.replaceAll("{word}", nonEmojis).replaceAll("{emojis}", emojis);
   return res;
 }
-function format(arg1, arg2) {
+function format(arg1, arg2, arg3) {
   var _a, _b, _c, _d;
   let options;
   if (typeof arg1 === "string" && typeof arg2 === "string") {
-    options = { title: arg1, content: arg2 };
+    options = { title: arg1, content: arg2, contentFont: arg3 };
   } else if (typeof arg1 === "object" && arg1 !== null) {
     options = arg1;
   } else {
     throw new Error("Invalid arguments");
   }
   (_a = options.titleFont) != null ? _a : options.titleFont = "bold";
-  (_b = options.contentFont) != null ? _b : options.contentFont = "none";
+  (_b = options.contentFont) != null ? _b : options.contentFont = "fancy";
   (_c = options.titlePattern) != null ? _c : options.titlePattern = void 0;
   (_d = options.noFormat) != null ? _d : options.noFormat = false;
   return `${fonts2[options.titleFont](
     !options.noFormat ? forceTitleFormat(options.title, options.titlePattern) : options.title
   )}
 ${UNIRedux.standardLine}
-${fonts2[options.contentFont](options.content)}`;
+${fonts2[options.contentFont](
+    autoBold(options.content)
+  )}`;
 }
 var UNIRedux = class {
 };
@@ -1088,11 +1092,33 @@ function abbreviateNumber(value, places = 2, isFull = false) {
   const formattedValue = abbreviatedValue.toFixed(places).replace(/\.?0+$/, "");
   return `${formattedValue}${isFull ? ` ${suffix}` : suffix}`;
 }
+function autoBold(text) {
+  text = String(text);
+  text = text.replace(
+    /\*\*\*(.*?)\*\*\*/g,
+    (_, text2) => fonts2.bold_italic(text2)
+  );
+  text = text.replace(
+    /\*\*(.*?)\*\*/g,
+    (_, text2) => fonts2.bold(text2)
+  );
+  return text;
+}
+function fontTag(text) {
+  text = String(text);
+  text = text.replace(
+    /\[font=(.*?)\]\s*(.*?)\s*\[:font=(.*?)\]/g,
+    (_, font, text2, font2) => font === font2 ? fonts2[font](text2) : text2
+  );
+  return text;
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   FontSystem,
   UNIRedux,
   abbreviateNumber,
+  autoBold,
+  fontTag,
   forceTitleFormat,
   format
 });

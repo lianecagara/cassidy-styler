@@ -20,7 +20,7 @@ interface FormatOptions {
 /**
  * Formats title and content text.
  */
-declare function format(title: string, content: string): string;
+declare function format(title: string, content: string, contentFont?: FontTypes): string;
 /**
  * Formats title and content text with optional font styles and title patterns.
  */
@@ -166,5 +166,25 @@ declare class UNIRedux {
  * @returns {string} - The abbreviated number.
  */
 declare function abbreviateNumber(value: number | string, places?: number, isFull?: boolean): string;
+/**
+ * Transforms the input text by applying bold and bold-italic formatting.
+ *
+ * The function looks for text wrapped in `***` and `**` and replaces them with
+ * bold-italic and bold formatting respectively.
+ *
+ * @param text - The input text to be transformed.
+ * @returns The transformed text with bold and bold-italic formatting applied.
+ */
+declare function autoBold(text: string): string;
+/**
+ * Replaces custom font tags in the given text with corresponding font styles.
+ *
+ * The function looks for patterns in the format `[font=fontName]text[:font=fontName]`
+ * and replaces them with the corresponding font styles if the font names match.
+ *
+ * @param text - The input text containing custom font tags.
+ * @returns The text with font tags replaced by corresponding font styles.
+ */
+declare function fontTag(text: string): string;
 
-export { UNIRedux, abbreviateNumber, forceTitleFormat, format };
+export { UNIRedux, abbreviateNumber, autoBold, fontTag, forceTitleFormat, format };

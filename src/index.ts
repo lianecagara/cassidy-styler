@@ -40,7 +40,11 @@ interface FormatOptions {
 /**
  * Formats title and content text.
  */
-export function format(title: string, content: string): string;
+export function format(
+  title: string,
+  content: string,
+  contentFont?: FontTypes
+): string;
 
 /**
  * Formats title and content text with optional font styles and title patterns.
@@ -57,11 +61,15 @@ export function format({
 /**
  * Formats title and content text with optional font styles and title patterns.
  */
-export function format(arg1: string | FormatOptions, arg2?: string): string {
+export function format(
+  arg1: string | FormatOptions,
+  arg2?: string,
+  arg3?: FontTypes | undefined
+): string {
   let options: FormatOptions;
 
   if (typeof arg1 === "string" && typeof arg2 === "string") {
-    options = { title: arg1, content: arg2 };
+    options = { title: arg1, content: arg2, contentFont: arg3 };
   } else if (typeof arg1 === "object" && arg1 !== null) {
     options = arg1;
   } else {
@@ -69,7 +77,7 @@ export function format(arg1: string | FormatOptions, arg2?: string): string {
   }
 
   options.titleFont ??= "bold";
-  options.contentFont ??= "none";
+  options.contentFont ??= "fancy";
   options.titlePattern ??= undefined;
   options.noFormat ??= false;
 
@@ -77,7 +85,9 @@ export function format(arg1: string | FormatOptions, arg2?: string): string {
     !options.noFormat
       ? forceTitleFormat(options.title, options.titlePattern)
       : options.title
-  )}\n${UNIRedux.standardLine}\n${fonts[options.contentFont](options.content)}`;
+  )}\n${UNIRedux.standardLine}\n${fonts[options.contentFont](
+    autoBold(options.content)
+  )}`;
 }
 
 /**
@@ -323,4 +333,43 @@ export function abbreviateNumber(
   const formattedValue = abbreviatedValue.toFixed(places).replace(/\.?0+$/, "");
 
   return `${formattedValue}${isFull ? ` ${suffix}` : suffix}`;
+}
+
+/**
+ * Transforms the input text by applying bold and bold-italic formatting.
+ *
+ * The function looks for text wrapped in `***` and `**` and replaces them with
+ * bold-italic and bold formatting respectively.
+ *
+ * @param text - The input text to be transformed.
+ * @returns The transformed text with bold and bold-italic formatting applied.
+ */
+export function autoBold(text: string) {
+  text = String(text);
+  text = text.replace(/\*\*\*(.*?)\*\*\*/g, (_: string, text: string) =>
+    fonts.bold_italic(text)
+  );
+  text = text.replace(/\*\*(.*?)\*\*/g, (_: string, text: string) =>
+    fonts.bold(text)
+  );
+  return text;
+}
+
+/**
+ * Replaces custom font tags in the given text with corresponding font styles.
+ *
+ * The function looks for patterns in the format `[font=fontName]text[:font=fontName]`
+ * and replaces them with the corresponding font styles if the font names match.
+ *
+ * @param text - The input text containing custom font tags.
+ * @returns The text with font tags replaced by corresponding font styles.
+ */
+export function fontTag(text: string) {
+  text = String(text);
+  text = text.replace(
+    /\[font=(.*?)\]\s*(.*?)\s*\[:font=(.*?)\]/g,
+    (_, font, text, font2) =>
+      font === font2 ? fonts[font as FontTypes](text) : text
+  );
+  return text;
 }
