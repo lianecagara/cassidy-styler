@@ -1197,7 +1197,7 @@ var _Box = class _Box {
       if (style) {
         styler = style;
       }
-      if (styler && form.body && styler !== void 0) {
+      if (styler && form.body && styler !== void 0 && styler.title) {
         const combined = __spreadProps(__spreadValues({}, styler), {
           content: form.body
         });
@@ -1348,8 +1348,8 @@ _event = new WeakMap();
 __publicField(_Box, "queue", []);
 var Box = _Box;
 function normalizeMessageForm(form) {
-  let r;
-  if (r) {
+  let r = {};
+  if (form && r) {
     if (typeof form === "object") {
       r = form;
     }

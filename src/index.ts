@@ -473,7 +473,7 @@ export class Box {
     if (style) {
       styler = style;
     }
-    if (styler && form.body && styler !== undefined) {
+    if (styler && form.body && styler !== undefined && styler.title) {
       const combined: FormatOptions = {
         ...styler,
         content: form.body,
@@ -647,8 +647,8 @@ export class Box {
 }
 
 function normalizeMessageForm(form: MessageForm): StrictMessageForm {
-  let r;
-  if (r) {
+  let r: Record<string, any> = {};
+  if (form && r) {
     if (typeof form === "object") {
       r = form;
     }
