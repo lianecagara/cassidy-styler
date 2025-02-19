@@ -1,7 +1,7 @@
 {
   "name": "cassidy-styler",
   "version": "1.0.0",
-  "description": "Style your texts using unicode with ease!",
+  "description": "A versatile library to style your texts using various Unicode fonts and formatting options.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "scripts": {
@@ -19,8 +19,22 @@
       "import": "./dist/fonts.mjs"
     }
   },
+  "keywords": [
+    "unicode",
+    "text",
+    "styling",
+    "fonts",
+    "formatting",
+    "typescript",
+    "es6",
+    "commonjs",
+    "esm",
+    "unicode-fonts",
+    "text-formatting",
+    "text-styling"
+  ],
   "author": "@lianecagara",
-  "license": "ISC",
+  "license": "CC BY-ND 4.0",
   "devDependencies": {
     "@types/node": "^22.13.4",
     "tsup": "^8.3.6",
