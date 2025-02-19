@@ -1,5 +1,16 @@
+import { FontTypes } from './font.js';
 export { default as FontSystem } from './font.js';
 
+declare function forceTitleFormat(str: string, pattern?: string): string;
+interface FormatOptions {
+    title: string;
+    content: string;
+    titleFont?: FontTypes;
+    contentFont?: FontTypes;
+    titlePattern?: string;
+}
+declare function format(title: string, content: string): string;
+declare function format({ title, content, contentFont, titleFont, titlePattern, }: FormatOptions): string;
 declare class UNIRedux {
     /** Special invisible space character */
     static specialSpace: string;
@@ -129,4 +140,4 @@ declare class UNIRedux {
     static arrowOutline: "➩";
 }
 
-export { UNIRedux };
+export { UNIRedux, forceTitleFormat, format };

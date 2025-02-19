@@ -39,7 +39,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
 var index_exports = {};
 __export(index_exports, {
   FontSystem: () => font_default,
-  UNIRedux: () => UNIRedux
+  UNIRedux: () => UNIRedux,
+  forceTitleFormat: () => forceTitleFormat,
+  format: () => format
 });
 module.exports = __toCommonJS(index_exports);
 
@@ -885,6 +887,33 @@ var font_default = FontSystem;
 
 // src/index.ts
 var line = "\u2501";
+function forceTitleFormat(str, pattern) {
+  pattern != null ? pattern : pattern = `{word} ${UNIRedux.charm} {emojis}`;
+  const emojiRegex = new RegExp("\\p{Emoji}", "gu");
+  let emojis = [...str].filter((char) => emojiRegex.test(char)).join("");
+  let nonEmojis = [...str].filter((char) => !emojiRegex.test(char)).join("").trim().replaceAll("|", "");
+  const res = pattern.replaceAll("{word}", nonEmojis).replaceAll("{emojis}", emojis);
+  return res;
+}
+function format(arg1, arg2) {
+  var _a, _b, _c;
+  let options;
+  if (typeof arg1 === "string" && typeof arg2 === "string") {
+    options = { title: arg1, content: arg2 };
+  } else if (typeof arg1 === "object" && arg1 !== null) {
+    options = arg1;
+  } else {
+    throw new Error("Invalid arguments");
+  }
+  (_a = options.titleFont) != null ? _a : options.titleFont = "bold";
+  (_b = options.contentFont) != null ? _b : options.contentFont = "none";
+  (_c = options.titlePattern) != null ? _c : options.titlePattern = void 0;
+  return `${fonts2[options.titleFont](
+    options.titlePattern ? forceTitleFormat(options.title, options.titlePattern) : options.title
+  )}
+${UNIRedux.standardLine}
+${fonts2[options.contentFont](options.content)}`;
+}
 var UNIRedux = class {
 };
 /** Special invisible space character */
@@ -1016,6 +1045,8 @@ __publicField(UNIRedux, "arrowOutline", "\u27A9");
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   FontSystem,
-  UNIRedux
+  UNIRedux,
+  forceTitleFormat,
+  format
 });
 //# sourceMappingURL=index.js.map
