@@ -17,6 +17,7 @@ console.log(
     titleFont: "double_struck",
     contentFont: "fancy_italic",
     content: "You have 1000$",
+    lineLength: 10,
   })
 );
 console.log(

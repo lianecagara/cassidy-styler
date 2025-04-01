@@ -35,6 +35,7 @@ interface FormatOptions {
   contentFont?: FontTypes;
   titlePattern?: string;
   noFormat?: boolean;
+  lineLength?: number;
 }
 
 /**
@@ -56,6 +57,7 @@ export function format({
   titleFont,
   titlePattern,
   noFormat,
+  lineLength,
 }: FormatOptions): string;
 
 /**
@@ -80,12 +82,13 @@ export function format(
   options.contentFont ??= "fancy";
   options.titlePattern ??= undefined;
   options.noFormat ??= false;
+  options.lineLength ??= 15;
 
   return `${fonts[options.titleFont](
     !options.noFormat
       ? forceTitleFormat(options.title, options.titlePattern)
       : options.title
-  )}\n${UNIRedux.standardLine}\n${fonts[options.contentFont](
+  )}\n${line.repeat(options.lineLength)}\n${fonts[options.contentFont](
     autoBold(options.content)
   )}`;
 }

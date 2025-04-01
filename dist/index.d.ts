@@ -16,6 +16,7 @@ interface FormatOptions {
     contentFont?: FontTypes;
     titlePattern?: string;
     noFormat?: boolean;
+    lineLength?: number;
 }
 /**
  * Formats title and content text.
@@ -24,7 +25,7 @@ declare function format(title: string, content: string, contentFont?: FontTypes)
 /**
  * Formats title and content text with optional font styles and title patterns.
  */
-declare function format({ title, content, contentFont, titleFont, titlePattern, noFormat, }: FormatOptions): string;
+declare function format({ title, content, contentFont, titleFont, titlePattern, noFormat, lineLength, }: FormatOptions): string;
 /**
  * A collection of special Unicode characters and symbols.
  * Provides commonly used characters like line separators, trademarks, mathematical symbols, and more.
