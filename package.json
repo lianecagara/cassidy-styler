@@ -1,6 +1,6 @@
 {
   "name": "cassidy-styler",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "A versatile library to style your texts using various Unicode fonts and formatting options.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

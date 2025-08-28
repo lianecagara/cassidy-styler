@@ -1,4 +1,11 @@
-const { FontSystem, format, UNIRedux, createFormat } = require("../");
+const {
+  FontSystem,
+  format,
+  UNIRedux,
+  createFormat,
+  Datum,
+  abbreviateNumber,
+} = require("../");
 console.log(FontSystem);
 console.log(FontSystem.default);
 
@@ -53,3 +60,21 @@ console.log(
     "Hello! Welcome, and this is your **Profile**\n`Name`: ***Liane Cagara***\n`URL`: https://facebook.com/nealiana.kaye.cagara\n\nHave a nice day!! ☕"
   )
 );
+
+const nums = [1, 2, 3, 4, 5, 6, 6, 2, 4, 5, 3];
+console.log({
+  nums,
+  unique: Datum.toUniqueArray(nums, (i) => i),
+  shuffled: Datum.shuffle(nums),
+  shuffled2: Datum.shuffle(nums),
+  shuffled3: Datum.shuffle(nums),
+  shuffled4: Datum.shuffle(nums),
+  shuffled5: Datum.shuffle(nums),
+});
+
+const abbr = 1e50;
+console.log({
+  num: abbr,
+  abbr: abbreviateNumber(abbr),
+  abbrFull: abbreviateNumber(abbr, 2, true),
+});

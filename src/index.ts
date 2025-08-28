@@ -1,6 +1,10 @@
 export { default as FontSystem } from "./font";
 import { ApplyFontConfig, fonts, FontTypes } from "./font";
-
+export * from "./font";
+export * as Font from "./font";
+export * from "./ArielUtils";
+export * as ArielUtils from "./ArielUtils";
+export { Datum } from "./Datum";
 export const line = "━";
 export { fonts };
 
@@ -326,56 +330,6 @@ export class UNIRedux {
 
   /** Arrow Outline symbol */
   static arrowOutline: "➩" = "➩";
-}
-
-/**
- * Abbreviates a number using K (thousand), M (million), B (billion), etc.
- *
- * @param {number|string} value - The number to abbreviate.
- * @param {number} [places=2] - The number of decimal places to round to.
- * @param {boolean} [isFull=false] - If true, returns the full name instead of letter notation (e.g., "Thousand" instead of "K").
- * @returns {string} - The abbreviated number.
- */
-export function abbreviateNumber(
-  value: number | string,
-  places = 2,
-  isFull = false
-): string {
-  let num = Number(value);
-  if (isNaN(num)) return "Invalid input";
-  if (num < 1000) {
-    return num.toFixed(places).replace(/\.?0+$/, "");
-  }
-
-  const suffixes = ["", "K", "M", "B", "T", "P", "E"];
-  const fullSuffixes = [
-    "",
-    "Thousand",
-    "Million",
-    "Billion",
-    "Trillion",
-    "Quadrillion",
-    "Quintillion",
-  ];
-
-  const magnitude = Math.floor(Math.log10(num) / 3);
-
-  if (magnitude === 0) {
-    return num % 1 === 0
-      ? num.toString()
-      : num.toFixed(places).replace(/\.?0+$/, "");
-  }
-
-  const abbreviatedValue = num / Math.pow(1000, magnitude);
-  const suffix = isFull ? fullSuffixes[magnitude] : suffixes[magnitude];
-
-  if (abbreviatedValue % 1 === 0) {
-    return `${Math.round(abbreviatedValue)}${isFull ? ` ${suffix}` : suffix}`;
-  }
-
-  const formattedValue = abbreviatedValue.toFixed(places).replace(/\.?0+$/, "");
-
-  return `${formattedValue}${isFull ? ` ${suffix}` : suffix}`;
 }
 
 /**
@@ -716,4 +670,3 @@ function normalizeMessageForm(form: MessageForm): StrictMessageForm {
 }
 
 export const LiaIOLite = Box;
-export * from "./font";

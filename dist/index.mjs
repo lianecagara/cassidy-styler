@@ -20,6 +20,10 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
 var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
 var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
@@ -47,6 +51,15 @@ var __async = (__this, __arguments, generator) => {
 };
 
 // src/font.ts
+var font_exports = {};
+__export(font_exports, {
+  FontTypes: () => FontTypes,
+  allFonts: () => allFonts,
+  applyFonts: () => applyFonts,
+  default: () => font_default,
+  fontMap: () => fontMap,
+  fonts: () => fonts2
+});
 var fonts = {
   widespace: {
     a: "\uFF41",
@@ -964,6 +977,999 @@ var fontMap = FontSystem.fontMap;
 var fonts2 = FontSystem.fonts;
 var font_default = FontSystem;
 
+// src/ArielUtils.ts
+var ArielUtils_exports = {};
+__export(ArielUtils_exports, {
+  ArielIcons: () => ArielIcons,
+  abbreviateNumber: () => abbreviateNumber,
+  formatCash: () => formatCash,
+  formatTimeSentence: () => formatTimeSentence,
+  formatValue: () => formatValue,
+  getMinimumChange: () => getMinimumChange,
+  isNoChange: () => isNoChange,
+  numMultipliers: () => numMultipliers,
+  parseBet: () => parseBet
+});
+var numMultipliers = {
+  "": 1,
+  k: 1e3,
+  m: 1e6,
+  b: 1e9,
+  t: 1e12,
+  qa: 1e15,
+  qi: 1e18,
+  sx: 1e21,
+  sp: 1e24,
+  oc: 1e27,
+  no: 1e30,
+  dc: 1e33,
+  ud: 1e36,
+  dd: 1e39,
+  td: 1e42,
+  qad: 1e45,
+  qid: 1e48,
+  sxd: 1e51,
+  spd: 1e54,
+  ocd: 1e57,
+  nod: 1e60,
+  vg: 1e63,
+  uvg: 1e66,
+  dvg: 1e69,
+  tvg: 1e72,
+  qavg: 1e75,
+  qivg: 1e78,
+  sxvg: 1e81,
+  spvg: 1e84,
+  ocvg: 1e87,
+  novg: 1e90,
+  trg: 1e93,
+  utrg: 1e96,
+  dtrg: 1e99,
+  ttrg: 1e102,
+  qatrg: 1e105,
+  qitrg: 1e108,
+  sxtrg: 1e111,
+  sptrg: 1e114,
+  octrg: 1e117,
+  notrg: 1e120,
+  qag: 1e123,
+  uqag: 1e126,
+  dqag: 1e129,
+  tqag: 1e132,
+  qaqag: 1e135,
+  qiqag: 1e138,
+  sxqag: 1e141,
+  spqag: 1e144,
+  ocqag: 1e147,
+  noqag: 1e150,
+  qig: 1e153,
+  uqig: 1e156,
+  dqig: 1e159,
+  tqig: 1e162,
+  qaqig: 1e165,
+  qiqig: 1e168,
+  sxqig: 1e171,
+  spqig: 1e174,
+  ocqig: 1e177,
+  noqig: 1e180,
+  sxg: 1e183,
+  usxg: 1e186,
+  dsxg: 1e189,
+  tsxg: 1e192,
+  qasxg: 1e195,
+  qisxg: 1e198,
+  sxsxg: 1e201,
+  spsxg: 1e204,
+  ocsxg: 1e207,
+  nosxg: 1e210,
+  spg: 1e213,
+  uspg: 1e216,
+  dspg: 1e219,
+  tspg: 1e222,
+  qaspg: 1e225,
+  qispg: 1e228,
+  sxspg: 1e231,
+  spspg: 1e234,
+  ocspg: 1e237,
+  nospg: 1e240,
+  ocg: 1e243,
+  uocg: 1e246,
+  docg: 1e249,
+  tocg: 1e252,
+  qaocg: 1e255,
+  qiocg: 1e258,
+  sxocg: 1e261,
+  spocg: 1e264,
+  ococg: 1e267,
+  noocg: 1e270,
+  nog: 1e273,
+  unog: 1e276,
+  dnog: 1e279,
+  tnog: 1e282,
+  qanog: 1e285,
+  qinog: 1e288,
+  sxnog: 1e291,
+  spnog: 1e294,
+  ocnog: 1e297,
+  nonog: 1e300,
+  ctg: 1e303,
+  uctg: 1e306,
+  ctc: Infinity
+};
+function parseBet(arg, totalBalance = NaN) {
+  let targetArg = `${arg}`.trim();
+  if (targetArg === "allin" || targetArg === "all" && !isNaN(totalBalance)) {
+    return Number(totalBalance);
+  }
+  if (targetArg.endsWith("%")) {
+    const per = parseFloat(targetArg.replaceAll("%", "")) / 100;
+    return Math.floor(Number(totalBalance) * per);
+  }
+  const clean = targetArg.replaceAll(",", "").replaceAll("_", "");
+  const multipliers = numMultipliers;
+  const suffixPattern = Object.keys(multipliers).sort((a, b) => b.length - a.length).join("|");
+  const regex = new RegExp(
+    `^([\\d.]+(?:e[+-]?\\d+)?)(?:(${suffixPattern}))?$`,
+    "i"
+  );
+  const match = clean.match(regex);
+  if (match) {
+    const numberPart = parseFloat(match[1]);
+    const abbreviation = match[2];
+    if (!abbreviation) {
+      return Math.floor(numberPart);
+    }
+    const multiplier = multipliers[String(abbreviation).toLowerCase()];
+    if (multiplier !== void 0) {
+      return Math.floor(numberPart * multiplier);
+    }
+  }
+  return NaN;
+}
+var ArielIcons = class {
+};
+__publicField(ArielIcons, "mainArrow", "\u21D2");
+__publicField(ArielIcons, "info", "\u2139\uFE0F \u21D2");
+function abbreviateNumber(value, places = 3, isFull = false) {
+  let num = Number(value);
+  if (isNaN(num)) return "Invalid input";
+  if (num < 1e3) {
+    return num.toFixed(places).replace(/\.?0+$/, "");
+  }
+  const suffixes = [
+    "",
+    // 10^0
+    "K",
+    // 10^3
+    "M",
+    // 10^6
+    "B",
+    // 10^9
+    "T",
+    // 10^12
+    "Qa",
+    // Quadrillion, 10^15
+    "Qi",
+    // Quintillion, 10^18
+    "Sx",
+    // Sextillion, 10^21
+    "Sp",
+    // Septillion, 10^24
+    "Oc",
+    // Octillion, 10^27
+    "No",
+    // Nonillion, 10^30
+    "Dc",
+    // Decillion, 10^33
+    "Ud",
+    // Undecillion, 10^36
+    "Dd",
+    // Duodecillion, 10^39
+    "Td",
+    // Tredecillion, 10^42
+    "Qad",
+    // Quattuordecillion, 10^45
+    "Qid",
+    // Quindecillion, 10^48
+    "Sxd",
+    // Sexdecillion, 10^51
+    "Spd",
+    // Septendecillion, 10^54
+    "Ocd",
+    // Octodecillion, 10^57
+    "Nod",
+    // Novemdecillion, 10^60
+    "Vg",
+    // Vigintillion, 10^63
+    "Uvg",
+    // Unvigintillion, 10^66
+    "Dvg",
+    // Duovigintillion, 10^69
+    "Tvg",
+    // Tresvigintillion, 10^72
+    "Qavg",
+    // Quattuorvigintillion, 10^75
+    "Qivg",
+    // Quinquavigintillion, 10^78
+    "Sxvg",
+    // Sexvigintillion, 10^81
+    "Spvg",
+    // Septenvigintillion, 10^84
+    "Ocvg",
+    // Octovigintillion, 10^87
+    "Novg",
+    // Novemvigintillion, 10^90
+    "Trg",
+    // Trigintillion, 10^93
+    "Utrg",
+    // Untrigintillion, 10^96
+    "Dtrg",
+    // Duotrigintillion, 10^99
+    "Ttrg",
+    // Trestrigintillion, 10^102
+    "Qatrg",
+    // Quattuortrigintillion, 10^105
+    "Qitrg",
+    // Quinquatrigintillion, 10^108
+    "Sxtrg",
+    // Sextrigintillion, 10^111
+    "Sptrg",
+    // Septentrigintillion, 10^114
+    "Octrg",
+    // Octotrigintillion, 10^117
+    "Notrg",
+    // Novemtrigintillion, 10^120
+    "Qag",
+    // Quadragintillion, 10^123
+    "Uqag",
+    // Unquadragintillion, 10^126
+    "Dqag",
+    // Duoquadragintillion, 10^129
+    "Tqag",
+    // Tresquadragintillion, 10^132
+    "Qaqag",
+    // Quattuorquadragintillion, 10^135
+    "Qiqag",
+    // Quinquaquadragintillion, 10^138
+    "Sxqag",
+    // Sexquadragintillion, 10^141
+    "Spqag",
+    // Septenquadragintillion, 10^144
+    "Ocqag",
+    // Octoquadragintillion, 10^147
+    "Noqag",
+    // Novemquadragintillion, 10^150
+    "Qig",
+    // Quinquagintillion, 10^153
+    "Uqig",
+    // Unquinquagintillion, 10^156
+    "Dqig",
+    // Duoquinquagintillion, 10^159
+    "Tqig",
+    // Tresquinquagintillion, 10^162
+    "Qaqig",
+    // Quattuorquinquagintillion, 10^165
+    "Qiqig",
+    // Quinquaquinquagintillion, 10^168
+    "Sxqig",
+    // Sexquinquagintillion, 10^171
+    "Spqig",
+    // Septenquinquagintillion, 10^174
+    "Ocqig",
+    // Octoquinquagintillion, 10^177
+    "Noqig",
+    // Novemquinquagintillion, 10^180
+    "Sxg",
+    // Sexagintillion, 10^183
+    "Usxg",
+    // Unsexagintillion, 10^186
+    "Dsxg",
+    // Duosexagintillion, 10^189
+    "Tsxg",
+    // Tresexagintillion, 10^192
+    "Qasxg",
+    // Quattuorsexagintillion, 10^195
+    "Qisxg",
+    // Quinquasexagintillion, 10^198
+    "Sxsxg",
+    // Sexsexagintillion, 10^201
+    "Spsxg",
+    // Septensexagintillion, 10^204
+    "Ocsxg",
+    // Octosexagintillion, 10^207
+    "Nosxg",
+    // Novemsexagintillion, 10^210
+    "Spg",
+    // Septuagintillion, 10^213
+    "Uspg",
+    // Unseptuagintillion, 10^216
+    "Dspg",
+    // Duoseptuagintillion, 10^219
+    "Tspg",
+    // Treseptuagintillion, 10^222
+    "Qaspg",
+    // Quattuorseptuagintillion, 10^225
+    "Qispg",
+    // Quinquaseptuagintillion, 10^228
+    "Sxspg",
+    // Sexseptuagintillion, 10^231
+    "Spspg",
+    // Septenseptuagintillion, 10^234
+    "Ocspg",
+    // Octoseptuagintillion, 10^237
+    "Nospg",
+    // Novemseptuagintillion, 10^240
+    "Ocg",
+    // Octogintillion, 10^243
+    "Uocg",
+    // Unoctogintillion, 10^246
+    "Docg",
+    // Duooctogintillion, 10^249
+    "Tocg",
+    // Tresoctogintillion, 10^252
+    "Qaocg",
+    // Quattuoroctogintillion, 10^255
+    "Qiocg",
+    // Quinquaoctogintillion, 10^258
+    "Sxocg",
+    // Sexoctogintillion, 10^261
+    "Spocg",
+    // Septenoctogintillion, 10^264
+    "Ococg",
+    // Octooctogintillion, 10^267
+    "Noocg",
+    // Novemoctogintillion, 10^270
+    "Nog",
+    // Nonagintillion, 10^273
+    "Unog",
+    // Unnonagintillion, 10^276
+    "Dnog",
+    // Duononagintillion, 10^279
+    "Tnog",
+    // Tresnonagintillion, 10^282
+    "Qanog",
+    // Quattuornonagintillion, 10^285
+    "Qinog",
+    // Quinquanonagintillion, 10^288
+    "Sxnog",
+    // Sexnonagintillion, 10^291
+    "Spnog",
+    // Septennonagintillion, 10^294
+    "Ocnog",
+    // Octononagintillion, 10^297
+    "Nonog",
+    // Novemnonagintillion, 10^300
+    "Ctg",
+    // Centillion, 10^303
+    "Uctg",
+    // Uncentillion, 10^306
+    "Ctc"
+    // Centicentillion, 10^309
+  ];
+  const fullSuffixes = [
+    "",
+    "Thousand",
+    "Million",
+    "Billion",
+    "Trillion",
+    "Quadrillion",
+    "Quintillion",
+    "Sextillion",
+    "Septillion",
+    "Octillion",
+    "Nonillion",
+    "Decillion",
+    "Undecillion",
+    "Duodecillion",
+    "Tredecillion",
+    "Quattuordecillion",
+    "Quindecillion",
+    "Sexdecillion",
+    "Septendecillion",
+    "Octodecillion",
+    "Novemdecillion",
+    "Vigintillion",
+    "Unvigintillion",
+    // 10^66
+    "Duovigintillion",
+    // 10^69
+    "Tresvigintillion",
+    // 10^72
+    "Quattuorvigintillion",
+    // 10^75
+    "Quinquavigintillion",
+    // 10^78
+    "Sexvigintillion",
+    // 10^81
+    "Septenvigintillion",
+    // 10^84
+    "Octovigintillion",
+    // 10^87
+    "Novemvigintillion",
+    // 10^90
+    "Trigintillion",
+    // 10^93
+    "Untrigintillion",
+    // 10^96
+    "Duotrigintillion",
+    // 10^99
+    "Trestrigintillion",
+    // 10^102
+    "Quattuortrigintillion",
+    // 10^105
+    "Quinquatrigintillion",
+    // 10^108
+    "Sextrigintillion",
+    // 10^111
+    "Septentrigintillion",
+    // 10^114
+    "Octotrigintillion",
+    // 10^117
+    "Novemtrigintillion",
+    // 10^120
+    "Quadragintillion",
+    // 10^123
+    "Unquadragintillion",
+    // 10^126
+    "Duoquadragintillion",
+    // 10^129
+    "Tresquadragintillion",
+    // 10^132
+    "Quattuorquadragintillion",
+    // 10^135
+    "Quinquaquadragintillion",
+    // 10^138
+    "Sexquadragintillion",
+    // 10^141
+    "Septenquadragintillion",
+    // 10^144
+    "Octoquadragintillion",
+    // 10^147
+    "Novemquadragintillion",
+    // 10^150
+    "Quinquagintillion",
+    // 10^153
+    "Unquinquagintillion",
+    // 10^156
+    "Duoquinquagintillion",
+    // 10^159
+    "Tresquinquagintillion",
+    // 10^162
+    "Quattuorquinquagintillion",
+    // 10^165
+    "Quinquaquinquagintillion",
+    // 10^168
+    "Sexquinquagintillion",
+    // 10^171
+    "Septenquinquagintillion",
+    // 10^174
+    "Octoquinquagintillion",
+    // 10^177
+    "Novemquinquagintillion",
+    // 10^180
+    "Sexagintillion",
+    // 10^183
+    "Unsexagintillion",
+    // 10^186
+    "Duosexagintillion",
+    // 10^189
+    "Tresexagintillion",
+    // 10^192
+    "Quattuorsexagintillion",
+    // 10^195
+    "Quinquasexagintillion",
+    // 10^198
+    "Sexsexagintillion",
+    // 10^201
+    "Septensexagintillion",
+    // 10^204
+    "Octosexagintillion",
+    // 10^207
+    "Novemsexagintillion",
+    // 10^210
+    "Septuagintillion",
+    // 10^213
+    "Unseptuagintillion",
+    // 10^216
+    "Duoseptuagintillion",
+    // 10^219
+    "Treseptuagintillion",
+    // 10^222
+    "Quattuorseptuagintillion",
+    // 10^225
+    "Quinquaseptuagintillion",
+    // 10^228
+    "Sexseptuagintillion",
+    // 10^231
+    "Septenseptuagintillion",
+    // 10^234
+    "Octoseptuagintillion",
+    // 10^237
+    "Novemseptuagintillion",
+    // 10^240
+    "Octogintillion",
+    // 10^243
+    "Unoctogintillion",
+    // 10^246
+    "Duooctogintillion",
+    // 10^249
+    "Tresoctogintillion",
+    // 10^252
+    "Quattuoroctogintillion",
+    // 10^255
+    "Quinquaoctogintillion",
+    // 10^258
+    "Sexoctogintillion",
+    // 10^261
+    "Septenoctogintillion",
+    // 10^264
+    "Octooctogintillion",
+    // 10^267
+    "Novemoctogintillion",
+    // 10^270
+    "Nonagintillion",
+    // 10^273
+    "Unnonagintillion",
+    // 10^276
+    "Duononagintillion",
+    // 10^279
+    "Tresnonagintillion",
+    // 10^282
+    "Quattuornonagintillion",
+    // 10^285
+    "Quinquanonagintillion",
+    // 10^288
+    "Sexnonagintillion",
+    // 10^291
+    "Septennonagintillion",
+    // 10^294
+    "Octononagintillion",
+    // 10^297
+    "Novemnonagintillion",
+    // 10^300
+    "Centillion",
+    // 10^303
+    "Uncentillion",
+    // 10^306
+    "Centicentillion"
+    // 10^309
+  ];
+  const magnitude = Math.floor(Math.log10(num) / 3);
+  if (magnitude === 0) {
+    return num % 1 === 0 ? num.toString() : num.toFixed(places).replace(/\.?0+$/, "");
+  }
+  const abbreviatedValue = num / Math.pow(1e3, magnitude);
+  const suffix = isFull ? fullSuffixes[magnitude] : suffixes[magnitude];
+  if (!suffix) {
+    return num.toExponential();
+  }
+  if (abbreviatedValue % 1 === 0) {
+    return `${Math.round(abbreviatedValue)}${isFull ? ` ${suffix}` : suffix}`;
+  }
+  const formattedValue = places === 0 ? abbreviatedValue.toFixed(0) : abbreviatedValue.toFixed(places).replace(/\.?0+$/, "");
+  return `${formattedValue}${isFull ? ` ${suffix}` : suffix}`;
+}
+function formatCash(number = 0, emoji = "\u{1F4B5}", bold = false) {
+  if (typeof emoji === "boolean") {
+    bold = emoji;
+    emoji = "\u{1F4B5}";
+  }
+  return `${bold ? "**" : ""}${number > 999 ? `($${abbreviateNumber(number)}) ` : ""}$${Number(number).toLocaleString()}${emoji || "\u{1F4B5}"}${bold ? "**" : ""}`;
+}
+function formatValue(number = 0, emoji = "\u{1F3B2}", bold = false) {
+  if (typeof emoji === "boolean") {
+    bold = emoji;
+    emoji = "\u{1F3B2}";
+  }
+  return `${bold ? "**" : ""}${number > 999 ? `(${emoji || "\u{1F3B2}"}${abbreviateNumber(number)}) ` : ""}${emoji || "\u{1F3B2}"}${Number(number).toLocaleString()}${bold ? "**" : ""}`;
+}
+function formatTimeSentence(ms, showMs = false) {
+  const baseUnits = [
+    { label: "year", ms: 365 * 24 * 60 * 60 * 1e3 },
+    { label: "day", ms: 24 * 60 * 60 * 1e3 },
+    { label: "hour", ms: 60 * 60 * 1e3 },
+    { label: "minute", ms: 60 * 1e3 },
+    { label: "second", ms: 1e3 }
+  ];
+  const allUnits = showMs ? [...baseUnits, { label: "millisecond", ms: 1 }] : baseUnits;
+  const parts = [];
+  let remainingMs = ms;
+  for (const { label, ms: unitMs } of allUnits) {
+    const value = Math.floor(remainingMs / unitMs);
+    if (value > 0) {
+      parts.push(`${value} ${label}${value > 1 ? "s" : ""}`);
+      remainingMs %= unitMs;
+    }
+  }
+  if (parts.length === 0 && !showMs && ms > 0 && ms < 1e3) {
+    parts.push(`${ms} millisecond${ms !== 1 ? "s" : ""}`);
+  }
+  if (parts.length === 0) return "";
+  if (parts.length === 1) return parts[0];
+  if (parts.length === 2) return `${parts[0]} and ${parts[1]}`;
+  return `${parts.slice(0, -1).join(", ")}, and ${parts[parts.length - 1]}`;
+}
+function getMinimumChange(total) {
+  const exp = Math.floor(Math.log2(Math.abs(total)));
+  return Math.pow(2, exp - 52);
+}
+function isNoChange(change, total) {
+  return change < getMinimumChange(total);
+}
+
+// src/Datum.ts
+import fs from "fs/promises";
+var Datum;
+((Datum2) => {
+  function readPackageJson(pkgPath = "./package.json") {
+    return __async(this, null, function* () {
+      try {
+        const data = yield fs.readFile(pkgPath, "utf-8");
+        return JSON.parse(data);
+      } catch (e) {
+        return null;
+      }
+    });
+  }
+  Datum2.readPackageJson = readPackageJson;
+  function getPackageName(pkgPath = "./package.json") {
+    return __async(this, null, function* () {
+      var _a;
+      const pkg = yield readPackageJson(pkgPath);
+      return (_a = pkg == null ? void 0 : pkg.name) != null ? _a : null;
+    });
+  }
+  Datum2.getPackageName = getPackageName;
+  function getPackageVersion(pkgPath = "./package.json") {
+    return __async(this, null, function* () {
+      var _a;
+      const pkg = yield readPackageJson(pkgPath);
+      return (_a = pkg == null ? void 0 : pkg.version) != null ? _a : null;
+    });
+  }
+  Datum2.getPackageVersion = getPackageVersion;
+  function updatePackageJson(pkgPath, updater) {
+    return __async(this, null, function* () {
+      const pkg = (yield readPackageJson(pkgPath)) || {};
+      const updated = updater(pkg);
+      yield fs.writeFile(pkgPath, JSON.stringify(updated, null, 2));
+    });
+  }
+  Datum2.updatePackageJson = updatePackageJson;
+  function parseJson(jsonStr) {
+    try {
+      return JSON.parse(jsonStr);
+    } catch (e) {
+      return null;
+    }
+  }
+  Datum2.parseJson = parseJson;
+  function stringifyJson(obj, pretty = false) {
+    return pretty ? JSON.stringify(obj, null, 2) : JSON.stringify(obj);
+  }
+  Datum2.stringifyJson = stringifyJson;
+  function validateSchema(obj, schema) {
+    if (typeof schema === "string") {
+      return typeof obj === schema;
+    }
+    if (typeof schema === "function") {
+      return obj instanceof schema;
+    }
+    if (typeof schema === "object" && schema !== null && typeof obj === "object" && obj !== null) {
+      for (const key in schema) {
+        if (!validateSchema(obj[key], schema[key])) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+  Datum2.validateSchema = validateSchema;
+  function matchesField(value, condition) {
+    if (condition instanceof RegExp) {
+      return typeof value === "string" && condition.test(value);
+    }
+    if (typeof condition !== "object" || condition === null) {
+      return value === condition;
+    }
+    if (typeof value === "object" && value !== null && !Array.isArray(value) && !("$eq" in condition || "$ne" in condition || "$gt" in condition || "$gte" in condition || "$lt" in condition || "$lte" in condition || "$in" in condition || "$nin" in condition || "$regex" in condition)) {
+      for (const key in condition) {
+        if (!matchesField(value[key], condition[key])) {
+          return false;
+        }
+      }
+      return true;
+    }
+    for (const op in condition) {
+      const condVal = condition[op];
+      switch (op) {
+        case "$eq":
+          if (value !== condVal) return false;
+          break;
+        case "$ne":
+          if (value === condVal) return false;
+          break;
+        case "$gt":
+          if (!(value > condVal)) return false;
+          break;
+        case "$gte":
+          if (!(value >= condVal)) return false;
+          break;
+        case "$lt":
+          if (!(value < condVal)) return false;
+          break;
+        case "$lte":
+          if (!(value <= condVal)) return false;
+          break;
+        case "$in":
+          if (!Array.isArray(condVal) || !condVal.includes(value)) return false;
+          break;
+        case "$nin":
+          if (Array.isArray(condVal) && condVal.includes(value)) return false;
+          break;
+        case "$regex":
+          if (typeof value !== "string" || !condVal.test(value)) return false;
+          break;
+        default:
+          return false;
+      }
+    }
+    return true;
+  }
+  function queryData(data, query) {
+    const items = data instanceof Map ? Array.from(data.values()) : Object.values(data);
+    return items.filter((item) => {
+      for (const key in query) {
+        const condition = query[key];
+        const val = item[key];
+        if (!matchesField(val, condition)) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }
+  Datum2.queryData = queryData;
+  function keyOf(value, parentObj) {
+    const keys = Object.entries(parentObj).filter(([_, v]) => v === value).map(([k]) => k);
+    if (keys.length === 0) return null;
+    return keys.length === 1 ? keys[0] : keys;
+  }
+  Datum2.keyOf = keyOf;
+  function valueOf(key, parentObj) {
+    if (Array.isArray(key)) {
+      const values = key.map((k) => parentObj[k]).filter((v) => v !== void 0);
+      if (values.length === 0) return null;
+      return values;
+    }
+    const val = parentObj[key];
+    return val !== void 0 ? val : null;
+  }
+  Datum2.valueOf = valueOf;
+  function toUniqueArray(array, callback) {
+    const seen = /* @__PURE__ */ new Set();
+    const result = [];
+    for (const item of array) {
+      const key = callback ? callback(item) : item;
+      if (!seen.has(key)) {
+        seen.add(key);
+        result.push(item);
+      }
+    }
+    return result;
+  }
+  Datum2.toUniqueArray = toUniqueArray;
+  function decodeGameID(input) {
+    input = `${input}`;
+    input = input.replace(Datum2.GAME_ID_PREFIX, "");
+    const pad = input.length % 4;
+    if (pad > 0) {
+      input += "=".repeat(4 - pad);
+    }
+    try {
+      return Buffer.from(input, "base64").toString("utf8").replaceAll("custom_", "");
+    } catch (e) {
+      return input;
+    }
+  }
+  Datum2.decodeGameID = decodeGameID;
+  Datum2.GAME_ID_PREFIX = "web:";
+  function encodeGameID(input) {
+    input = `${input}`;
+    try {
+      if (input.startsWith(Datum2.GAME_ID_PREFIX)) {
+        return input;
+      }
+      const encodedIP = Buffer.from(input.replaceAll("custom_", "")).toString("base64").replace(/=/g, "");
+      return `${Datum2.GAME_ID_PREFIX}${encodedIP}`;
+    } catch (error) {
+      return input;
+    }
+  }
+  Datum2.encodeGameID = encodeGameID;
+  function encodeGameIDLegacy(input) {
+    try {
+      const encodedIP = Buffer.from(input).toString("base64").replace(/[+/=]/g, (match) => {
+        var _a;
+        return (_a = { "+": "0", "/": "1", "=": "" }[match]) != null ? _a : "";
+      });
+      return `${Datum2.GAME_ID_PREFIX}${encodedIP}`;
+    } catch (error) {
+      return input;
+    }
+  }
+  Datum2.encodeGameIDLegacy = encodeGameIDLegacy;
+  function makeMapPlain(plainObj = {}) {
+    const internalMap = new Map(
+      Object.entries(plainObj)
+    );
+    const target = Object.create(Object.getPrototypeOf(plainObj));
+    const handler = {
+      get(target2, prop, receiver) {
+        if (prop === Symbol.iterator) {
+          return function* () {
+            for (const [key, value] of internalMap) {
+              yield [key, value];
+            }
+          };
+        }
+        if (typeof prop === "symbol" || prop in Object.prototype) {
+          return Reflect.get(target2, prop, receiver);
+        }
+        return internalMap.get(prop);
+      },
+      set(_target, prop, value, _receiver) {
+        internalMap.set(prop, value);
+        return true;
+      },
+      deleteProperty(_target, prop) {
+        return internalMap.delete(prop);
+      },
+      has(_target, prop) {
+        return internalMap.has(prop);
+      },
+      ownKeys(_target) {
+        return Array.from(internalMap.keys());
+      },
+      getOwnPropertyDescriptor(_target, prop) {
+        if (internalMap.has(prop)) {
+          return {
+            value: internalMap.get(prop),
+            writable: true,
+            enumerable: true,
+            configurable: true
+          };
+        }
+        return void 0;
+      },
+      defineProperty(_target, prop, descriptor) {
+        if ("value" in descriptor && descriptor.value !== void 0) {
+          internalMap.set(prop, descriptor.value);
+        } else if (!descriptor.get && !descriptor.set) {
+          internalMap.delete(prop);
+        }
+        return true;
+      },
+      getPrototypeOf(target2) {
+        return Object.getPrototypeOf(target2);
+      },
+      setPrototypeOf(target2, proto) {
+        Object.setPrototypeOf(target2, proto);
+        return true;
+      },
+      isExtensible(_target) {
+        return true;
+      },
+      preventExtensions(_target) {
+        return false;
+      }
+    };
+    const proxied = new Proxy(target, handler);
+    return { map: internalMap, proxied };
+  }
+  Datum2.makeMapPlain = makeMapPlain;
+  function shuffle(inp) {
+    if (!Array.isArray(inp)) {
+      return Object.fromEntries(shuffle(Object.entries(inp)));
+    } else {
+      return fisherYates(inp);
+    }
+  }
+  Datum2.shuffle = shuffle;
+  function randomInt(min, max) {
+    if (min > max) [min, max] = [max, min];
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+  Datum2.randomInt = randomInt;
+  function fisherYates(array) {
+    const a = [...array];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+  Datum2.fisherYates = fisherYates;
+  function normalize(input) {
+    if (Array.isArray(input)) {
+      return input.map(normalize);
+    } else if (input !== null && typeof input === "object") {
+      const sorted = Object.keys(input).sort().reduce((acc, key) => {
+        acc[key] = normalize(input[key]);
+        return acc;
+      }, {});
+      return sorted;
+    }
+    return input;
+  }
+  Datum2.normalize = normalize;
+  function conform(obj, schema) {
+    const errors = [];
+    for (const key in schema) {
+      if (!schema[key](obj[key])) {
+        errors.push(`Key '${key}' failed validation.`);
+      }
+    }
+    return [errors.length === 0, errors];
+  }
+  Datum2.conform = conform;
+  function pick(obj, keys) {
+    const result = {};
+    for (const key of keys) {
+      if (key in obj) result[key] = obj[key];
+    }
+    return result;
+  }
+  Datum2.pick = pick;
+  function infer(value) {
+    if (Array.isArray(value)) return "array";
+    if (value === null) return "null";
+    return typeof value;
+  }
+  Datum2.infer = infer;
+  function trace(obj, target, path = []) {
+    if (obj === target) return path;
+    if (typeof obj !== "object" || obj === null) return null;
+    for (const key in obj) {
+      const result = trace(obj[key], target, [...path, key]);
+      if (result) return result;
+    }
+    return null;
+  }
+  Datum2.trace = trace;
+  function index(array, key) {
+    return array.reduce((acc, item) => {
+      const id = String(item[key]);
+      acc[id] = item;
+      return acc;
+    }, {});
+  }
+  Datum2.index = index;
+  function remap(obj, mapper) {
+    var _a;
+    const result = {};
+    for (const key in obj) {
+      const newKey = typeof mapper === "function" ? mapper(key, obj[key]) : (_a = mapper[key]) != null ? _a : key;
+      result[newKey] = obj[key];
+    }
+    return result;
+  }
+  Datum2.remap = remap;
+  function assert(condition, message = "Assertion failed") {
+    if (!condition) {
+      throw new Error(message);
+    }
+  }
+  Datum2.assert = assert;
+  function sample(array) {
+    if (array.length === 0) return null;
+    const index2 = Math.floor(Math.random() * array.length);
+    return array[index2];
+  }
+  Datum2.sample = sample;
+})(Datum || (Datum = {}));
+
 // src/index.ts
 var line = "\u2501";
 function forceTitleFormat(str, pattern) {
@@ -1137,34 +2143,6 @@ __publicField(UNIRedux, "arrowFromB", "\u27A6");
 __publicField(UNIRedux, "restart", "\u27F3");
 /** Arrow Outline symbol */
 __publicField(UNIRedux, "arrowOutline", "\u27A9");
-function abbreviateNumber(value, places = 2, isFull = false) {
-  let num = Number(value);
-  if (isNaN(num)) return "Invalid input";
-  if (num < 1e3) {
-    return num.toFixed(places).replace(/\.?0+$/, "");
-  }
-  const suffixes = ["", "K", "M", "B", "T", "P", "E"];
-  const fullSuffixes = [
-    "",
-    "Thousand",
-    "Million",
-    "Billion",
-    "Trillion",
-    "Quadrillion",
-    "Quintillion"
-  ];
-  const magnitude = Math.floor(Math.log10(num) / 3);
-  if (magnitude === 0) {
-    return num % 1 === 0 ? num.toString() : num.toFixed(places).replace(/\.?0+$/, "");
-  }
-  const abbreviatedValue = num / Math.pow(1e3, magnitude);
-  const suffix = isFull ? fullSuffixes[magnitude] : suffixes[magnitude];
-  if (abbreviatedValue % 1 === 0) {
-    return `${Math.round(abbreviatedValue)}${isFull ? ` ${suffix}` : suffix}`;
-  }
-  const formattedValue = abbreviatedValue.toFixed(places).replace(/\.?0+$/, "");
-  return `${formattedValue}${isFull ? ` ${suffix}` : suffix}`;
-}
 function autoBold(text, config) {
   text = String(text);
   text = text.replace(
@@ -1418,7 +2396,11 @@ function normalizeMessageForm(form) {
 }
 var LiaIOLite = Box;
 export {
+  ArielIcons,
+  ArielUtils_exports as ArielUtils,
   Box,
+  Datum,
+  font_exports as Font,
   font_default as FontSystem,
   FontTypes,
   LiaIOLite,
@@ -1433,7 +2415,14 @@ export {
   fonts2 as fonts,
   forceTitleFormat,
   format,
+  formatCash,
+  formatTimeSentence,
+  formatValue,
+  getMinimumChange,
+  isNoChange,
   line,
-  normalizeFormatOverloads
+  normalizeFormatOverloads,
+  numMultipliers,
+  parseBet
 };
 //# sourceMappingURL=index.mjs.map
