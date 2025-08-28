@@ -48,3 +48,8 @@ console.log(gardenStyle("Congratulations **Nea** for your new garden!"));
 console.log(
   gardenStyle("That's amazing!! Your new **balance** is $`100045000`")
 );
+console.log(
+  gardenStyle(
+    "Hello! Welcome, and this is your **Profile**\n`Name`: ***Liane Cagara***\n`URL`: https://facebook.com/nealiana.kaye.cagara\n\nHave a nice day!! ☕"
+  )
+);

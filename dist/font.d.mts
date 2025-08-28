@@ -854,8 +854,9 @@ declare const fonts: {
     };
 };
 type FontsProxy = {
-    [K in FontTypes]: (text: string) => string;
+    [K in FontTypes]: (text: string, config?: ApplyFontConfig) => string;
 };
+declare const FontTypes: (keyof typeof fonts)[];
 type FontTypes = keyof typeof fonts;
 declare const FontSystem: {
     /**
@@ -863,9 +864,14 @@ declare const FontSystem: {
      *
      * @param {string} text - The input text to style.
      * @param {FontTypes} [font="none"] - The font type to apply.
+     * @param {ApplyFontConfig} [config={}] - Configuration for ignoring words/links.
      * @returns {string} - The formatted text.
      */
-    applyFonts(text: string, font?: FontTypes): string;
+    applyFonts(text: string, font?: FontTypes, config?: ApplyFontConfig): string;
+    /**
+     * All valid font names.
+     */
+    fontNames: ("widespace" | "serif" | "handwriting" | "scriptbold" | "script" | "typewriter" | "bold" | "fancy" | "redux" | "moody" | "none" | "bold_italic" | "fancy_italic" | "serif2" | "double_struck")[];
     /**
      * Retrieves a formatted list of all available font styles.
      */
@@ -1733,7 +1739,7 @@ declare const FontSystem: {
      */
     readonly fonts: FontsProxy;
 };
-declare const applyFonts: (text: string, font?: FontTypes) => string;
+declare const applyFonts: (text: string, font?: FontTypes, config?: ApplyFontConfig) => string;
 declare const allFonts: () => string;
 declare const fontMap: {
     readonly widespace: {
@@ -2592,4 +2598,9 @@ declare const fontMap: {
 };
 declare const fonts2: FontsProxy;
 
-export { type FontTypes, allFonts, applyFonts, FontSystem as default, fontMap, fonts2 as fonts };
+interface ApplyFontConfig {
+    ignoreWords?: string[];
+    ignoreLinks?: boolean;
+}
+
+export { type ApplyFontConfig, FontTypes, type FontsProxy, allFonts, applyFonts, FontSystem as default, fontMap, fonts2 as fonts };

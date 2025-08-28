@@ -855,9 +855,11 @@ const fonts = {
   },
 } as const;
 
-type FontsProxy = {
-  [K in FontTypes]: (text: string) => string;
+export type FontsProxy = {
+  [K in FontTypes]: (text: string, config?: ApplyFontConfig) => string;
 };
+
+export const FontTypes = Object.keys(fonts) as (keyof typeof fonts)[];
 
 export type FontTypes = keyof typeof fonts;
 
@@ -867,16 +869,65 @@ const FontSystem = {
    *
    * @param {string} text - The input text to style.
    * @param {FontTypes} [font="none"] - The font type to apply.
+   * @param {ApplyFontConfig} [config={}] - Configuration for ignoring words/links.
    * @returns {string} - The formatted text.
    */
-  applyFonts(text: string, font: FontTypes = "none"): string {
+  applyFonts(
+    text: string,
+    font: FontTypes = "none",
+    config: ApplyFontConfig = {}
+  ): string {
+    config ??= {};
+    config.ignoreLinks ??= true;
+    if (!FontTypes.includes(font)) {
+      throw new TypeError(
+        `${font} is not a valid font type. All valid font types are ${FontTypes.join(
+          ", "
+        )}`
+      );
+    }
     const func = fonts[font];
-    const formattedText: string = text
-      .split("")
-      .map((char) => (char in func ? func[char as keyof typeof func] : char))
+    const linkRegex = /(https?:\/\/[^\s]+)/g;
+    let parts: { value: string; skip: boolean }[] = [];
+
+    let lastIndex = 0;
+    text.replace(linkRegex, (match, _, offset) => {
+      if (lastIndex < offset) {
+        parts.push({ value: text.slice(lastIndex, offset), skip: false });
+      }
+      parts.push({ value: match, skip: config.ignoreLinks ?? false });
+      lastIndex = offset + match.length;
+      return match;
+    });
+    if (lastIndex < text.length) {
+      parts.push({ value: text.slice(lastIndex), skip: false });
+    }
+    return parts
+      .map(({ value, skip }) => {
+        if (skip) return value;
+
+        return value
+          .split(/\b/)
+          .map((segment) => {
+            if (config.ignoreWords?.includes(segment)) {
+              return segment;
+            }
+
+            return segment
+              .split("")
+              .map((char) =>
+                char in func ? func[char as keyof typeof func] : char
+              )
+              .join("");
+          })
+          .join("");
+      })
       .join("");
-    return formattedText;
   },
+  /**
+   * All valid font names.
+   */
+  fontNames: FontTypes,
 
   /**
    * Retrieves a formatted list of all available font styles.
@@ -903,13 +954,26 @@ const FontSystem = {
     return new Proxy(
       {},
       {
-        get(_, prop: string | symbol) {
-          if (prop in fonts && typeof prop === "string") {
-            return function (text: string) {
-              return FontSystem.applyFonts(String(text), prop as FontTypes);
+        get(_, prop: string | symbol): FontsProxy[FontTypes] {
+          if (
+            FontTypes.includes(prop as FontTypes) &&
+            typeof prop === "string"
+          ) {
+            return function (text: string, config) {
+              return FontSystem.applyFonts(
+                String(text),
+                prop as FontTypes,
+                config
+              );
             };
           } else {
-            return (i: string) => typeof i;
+            throw new TypeError(
+              `${String(
+                prop
+              )} is not a valid font type. All valid font types are ${FontTypes.join(
+                ", "
+              )}`
+            );
           }
         },
       }
@@ -925,3 +989,8 @@ const fonts2 = FontSystem.fonts;
 export { fonts2 as fonts };
 
 export default FontSystem;
+
+export interface ApplyFontConfig {
+  ignoreWords?: string[];
+  ignoreLinks?: boolean;
+}

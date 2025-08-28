@@ -37,6 +37,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/font.ts
 var font_exports = {};
 __export(font_exports, {
+  FontTypes: () => FontTypes,
   allFonts: () => allFonts,
   applyFonts: () => applyFonts,
   default: () => font_default,
@@ -856,19 +857,60 @@ var fonts = {
     0: "\u{1D7D8}"
   }
 };
+var FontTypes = Object.keys(fonts);
 var FontSystem = {
   /**
    * Applies a specified font style to a given text.
    *
    * @param {string} text - The input text to style.
    * @param {FontTypes} [font="none"] - The font type to apply.
+   * @param {ApplyFontConfig} [config={}] - Configuration for ignoring words/links.
    * @returns {string} - The formatted text.
    */
-  applyFonts(text, font = "none") {
+  applyFonts(text, font = "none", config = {}) {
+    var _a;
+    config != null ? config : config = {};
+    (_a = config.ignoreLinks) != null ? _a : config.ignoreLinks = true;
+    if (!FontTypes.includes(font)) {
+      throw new TypeError(
+        `${font} is not a valid font type. All valid font types are ${FontTypes.join(
+          ", "
+        )}`
+      );
+    }
     const func = fonts[font];
-    const formattedText = text.split("").map((char) => char in func ? func[char] : char).join("");
-    return formattedText;
+    const linkRegex = /(https?:\/\/[^\s]+)/g;
+    let parts = [];
+    let lastIndex = 0;
+    text.replace(linkRegex, (match, _, offset) => {
+      var _a2;
+      if (lastIndex < offset) {
+        parts.push({ value: text.slice(lastIndex, offset), skip: false });
+      }
+      parts.push({ value: match, skip: (_a2 = config.ignoreLinks) != null ? _a2 : false });
+      lastIndex = offset + match.length;
+      return match;
+    });
+    if (lastIndex < text.length) {
+      parts.push({ value: text.slice(lastIndex), skip: false });
+    }
+    return parts.map(({ value, skip }) => {
+      if (skip) return value;
+      return value.split(/\b/).map((segment) => {
+        var _a2;
+        if ((_a2 = config.ignoreWords) == null ? void 0 : _a2.includes(segment)) {
+          return segment;
+        }
+        return segment.split("").map(
+          (char) => char in func ? func[char] : char
+        ).join("");
+      }).join("");
+    }).join("");
   },
+  /**
+   * All valid font names.
+   */
+  fontNames: FontTypes,
   /**
    * Retrieves a formatted list of all available font styles.
    */
@@ -892,12 +934,22 @@ var FontSystem = {
       {},
       {
         get(_, prop) {
-          if (prop in fonts && typeof prop === "string") {
-            return function(text) {
-              return FontSystem.applyFonts(String(text), prop);
+          if (FontTypes.includes(prop) && typeof prop === "string") {
+            return function(text, config) {
+              return FontSystem.applyFonts(
+                String(text),
+                prop,
+                config
+              );
             };
           } else {
-            return (i) => typeof i;
+            throw new TypeError(
+              `${String(
+                prop
+              )} is not a valid font type. All valid font types are ${FontTypes.join(
+                ", "
+              )}`
+            );
           }
         }
       }
@@ -911,6 +963,7 @@ var fonts2 = FontSystem.fonts;
 var font_default = FontSystem;
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  FontTypes,
   allFonts,
   applyFonts,
   fontMap,

@@ -1,5 +1,5 @@
 export { default as FontSystem } from "./font";
-import { fonts, FontTypes } from "./font";
+import { ApplyFontConfig, fonts, FontTypes } from "./font";
 
 export const line = "━";
 export { fonts };
@@ -41,6 +41,7 @@ export function createFormat({
   titlePattern,
   noFormat,
   lineLength,
+  fontConfig,
 }: FormatOptionsNoContent): StyleFormatter;
 
 export function createFormat(options: FormatOptionsNoContent): StyleFormatter {
@@ -54,15 +55,6 @@ export function createFormat(options: FormatOptionsNoContent): StyleFormatter {
   };
 }
 
-export interface FormatOptions {
-  title: string;
-  content: string;
-  titleFont?: FontTypes;
-  contentFont?: FontTypes;
-  titlePattern?: string;
-  noFormat?: boolean;
-  lineLength?: number;
-}
 export interface FormatOptionsNoContent {
   title: string;
   titleFont?: FontTypes;
@@ -70,7 +62,11 @@ export interface FormatOptionsNoContent {
   titlePattern?: string;
   noFormat?: boolean;
   lineLength?: number;
+  fontConfig?: ApplyFontConfig;
 }
+export type FormatOptions = FormatOptionsNoContent & {
+  content: string;
+};
 
 export function normalizeFormatOverloads(
   arg1: string | FormatOptions,
@@ -115,6 +111,7 @@ export function format({
   titlePattern,
   noFormat,
   lineLength,
+  fontConfig,
 }: FormatOptions): string;
 
 /**
@@ -129,10 +126,11 @@ export function format(
   return `${fonts[options.titleFont ? options.titleFont : "bold"](
     !options.noFormat
       ? forceTitleFormat(options.title, options.titlePattern)
-      : options.title
+      : options.title,
+    options.fontConfig
   )}\n${line.repeat(options.lineLength ?? 15)}\n${fonts[
     options.contentFont ?? "fancy"
-  ](autoBold(options.content))}`;
+  ](autoBold(options.content, options.fontConfig), options.fontConfig)}`;
 }
 
 /**
@@ -389,16 +387,16 @@ export function abbreviateNumber(
  * @param text - The input text to be transformed.
  * @returns The transformed text with bold and bold-italic formatting applied.
  */
-export function autoBold(text: string) {
+export function autoBold(text: string, config?: ApplyFontConfig) {
   text = String(text);
   text = text.replace(/\*\*\*(.*?)\*\*\*/g, (_: string, text: string) =>
-    fonts.bold_italic(text)
+    fonts.bold_italic(text, config)
   );
   text = text.replace(/\*\*(.*?)\*\*/g, (_: string, text: string) =>
-    fonts.bold(text)
+    fonts.bold(text, config)
   );
   text = text.replace(/`(.*?)`/g, (_: string, text: string) =>
-    fonts.typewriter(text)
+    fonts.typewriter(text, config)
   );
   return text;
 }
@@ -718,3 +716,4 @@ function normalizeMessageForm(form: MessageForm): StrictMessageForm {
 }
 
 export const LiaIOLite = Box;
+export * from "./font";

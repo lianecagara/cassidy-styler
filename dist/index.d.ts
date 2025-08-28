@@ -1,5 +1,5 @@
-import { FontTypes } from './font.js';
-export { default as FontSystem, fonts } from './font.js';
+import { FontTypes, ApplyFontConfig } from './font.js';
+export { default as FontSystem, FontsProxy, allFonts, applyFonts, fontMap, fonts } from './font.js';
 
 declare const line = "\u2501";
 
@@ -15,16 +15,7 @@ type StyleFormatter = (content: string, extra?: FormatOptions) => string;
 /**
  * Creates a reusable formatter that formats title and content text with optional font styles and title patterns.
  */
-declare function createFormat({ title, contentFont, titleFont, titlePattern, noFormat, lineLength, }: FormatOptionsNoContent): StyleFormatter;
-interface FormatOptions {
-    title: string;
-    content: string;
-    titleFont?: FontTypes;
-    contentFont?: FontTypes;
-    titlePattern?: string;
-    noFormat?: boolean;
-    lineLength?: number;
-}
+declare function createFormat({ title, contentFont, titleFont, titlePattern, noFormat, lineLength, fontConfig, }: FormatOptionsNoContent): StyleFormatter;
 interface FormatOptionsNoContent {
     title: string;
     titleFont?: FontTypes;
@@ -32,7 +23,11 @@ interface FormatOptionsNoContent {
     titlePattern?: string;
     noFormat?: boolean;
     lineLength?: number;
+    fontConfig?: ApplyFontConfig;
 }
+type FormatOptions = FormatOptionsNoContent & {
+    content: string;
+};
 declare function normalizeFormatOverloads(arg1: string | FormatOptions, arg2?: string, arg3?: FontTypes | undefined): FormatOptions;
 /**
  * Formats title and content text.
@@ -41,7 +36,7 @@ declare function format(title: string, content: string, contentFont?: FontTypes)
 /**
  * Formats title and content text with optional font styles and title patterns.
  */
-declare function format({ title, content, contentFont, titleFont, titlePattern, noFormat, lineLength, }: FormatOptions): string;
+declare function format({ title, content, contentFont, titleFont, titlePattern, noFormat, lineLength, fontConfig, }: FormatOptions): string;
 /**
  * A collection of special Unicode characters and symbols.
  * Provides commonly used characters like line separators, trademarks, mathematical symbols, and more.
@@ -192,7 +187,7 @@ declare function abbreviateNumber(value: number | string, places?: number, isFul
  * @param text - The input text to be transformed.
  * @returns The transformed text with bold and bold-italic formatting applied.
  */
-declare function autoBold(text: string): string;
+declare function autoBold(text: string, config?: ApplyFontConfig): string;
 /**
  * Replaces custom font tags in the given text with corresponding font styles.
  *
@@ -309,4 +304,4 @@ declare class Box {
 }
 declare const LiaIOLite: typeof Box;
 
-export { Box, type FormatOptions, type FormatOptionsNoContent, LiaIOLite, type StyleFormatter, UNIRedux, abbreviateNumber, autoBold, createFormat, fontTag, forceTitleFormat, format, line, normalizeFormatOverloads };
+export { ApplyFontConfig, Box, FontTypes, type FormatOptions, type FormatOptionsNoContent, LiaIOLite, type StyleFormatter, UNIRedux, abbreviateNumber, autoBold, createFormat, fontTag, forceTitleFormat, format, line, normalizeFormatOverloads };
