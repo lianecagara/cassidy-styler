@@ -1,7 +1,8 @@
 export { default as FontSystem } from "./font";
 import { fonts, FontTypes } from "./font";
 
-const line = "━";
+export const line = "━";
+export { fonts };
 
 /**
  * Formats a title string by extracting and rearranging emojis and non-emoji characters based on a pattern.
@@ -11,7 +12,7 @@ const line = "━";
  * @returns {string} - The formatted title string.
  */
 export function forceTitleFormat(str: string, pattern?: string): string {
-  pattern ??= `{word} ${UNIRedux.charm} {emojis}`;
+  pattern ??= `{emojis} {word}`;
   const emojiRegex = /\p{Emoji}/gu;
 
   let emojis = [...str].filter((char) => emojiRegex.test(char)).join("");
@@ -28,7 +29,32 @@ export function forceTitleFormat(str: string, pattern?: string): string {
   return res;
 }
 
-interface FormatOptions {
+export type StyleFormatter = (content: string, extra?: FormatOptions) => string;
+
+/**
+ * Creates a reusable formatter that formats title and content text with optional font styles and title patterns.
+ */
+export function createFormat({
+  title,
+  contentFont,
+  titleFont,
+  titlePattern,
+  noFormat,
+  lineLength,
+}: FormatOptionsNoContent): StyleFormatter;
+
+export function createFormat(options: FormatOptionsNoContent): StyleFormatter {
+  return function (content, extra) {
+    const normalized = normalizeFormatOverloads({
+      ...options,
+      ...(extra ?? []),
+      content,
+    });
+    return format({ ...normalized });
+  };
+}
+
+export interface FormatOptions {
   title: string;
   content: string;
   titleFont?: FontTypes;
@@ -36,6 +62,37 @@ interface FormatOptions {
   titlePattern?: string;
   noFormat?: boolean;
   lineLength?: number;
+}
+export interface FormatOptionsNoContent {
+  title: string;
+  titleFont?: FontTypes;
+  contentFont?: FontTypes;
+  titlePattern?: string;
+  noFormat?: boolean;
+  lineLength?: number;
+}
+
+export function normalizeFormatOverloads(
+  arg1: string | FormatOptions,
+  arg2?: string,
+  arg3?: FontTypes | undefined
+): FormatOptions {
+  let options: FormatOptions;
+
+  if (typeof arg1 === "string" && typeof arg2 === "string") {
+    options = { title: arg1, content: arg2, contentFont: arg3 };
+  } else if (typeof arg1 === "object" && arg1 !== null) {
+    options = arg1;
+  } else {
+    throw new Error("Invalid arguments");
+  }
+
+  options.titleFont ??= "bold";
+  options.contentFont ??= "fancy";
+  options.titlePattern ??= undefined;
+  options.noFormat ??= false;
+  options.lineLength ??= 15;
+  return options;
 }
 
 /**
@@ -68,29 +125,14 @@ export function format(
   arg2?: string,
   arg3?: FontTypes | undefined
 ): string {
-  let options: FormatOptions;
-
-  if (typeof arg1 === "string" && typeof arg2 === "string") {
-    options = { title: arg1, content: arg2, contentFont: arg3 };
-  } else if (typeof arg1 === "object" && arg1 !== null) {
-    options = arg1;
-  } else {
-    throw new Error("Invalid arguments");
-  }
-
-  options.titleFont ??= "bold";
-  options.contentFont ??= "fancy";
-  options.titlePattern ??= undefined;
-  options.noFormat ??= false;
-  options.lineLength ??= 15;
-
-  return `${fonts[options.titleFont](
+  const options = normalizeFormatOverloads(arg1, arg2, arg3);
+  return `${fonts[options.titleFont ? options.titleFont : "bold"](
     !options.noFormat
       ? forceTitleFormat(options.title, options.titlePattern)
       : options.title
-  )}\n${line.repeat(options.lineLength)}\n${fonts[options.contentFont](
-    autoBold(options.content)
-  )}`;
+  )}\n${line.repeat(options.lineLength ?? 15)}\n${fonts[
+    options.contentFont ?? "fancy"
+  ](autoBold(options.content))}`;
 }
 
 /**
@@ -354,6 +396,9 @@ export function autoBold(text: string) {
   );
   text = text.replace(/\*\*(.*?)\*\*/g, (_: string, text: string) =>
     fonts.bold(text)
+  );
+  text = text.replace(/`(.*?)`/g, (_: string, text: string) =>
+    fonts.typewriter(text)
   );
   return text;
 }

@@ -1,6 +1,6 @@
 // Font Mapping Module ni Liane at Nica
 //added reverse map
-const fonts: Record<string, Record<string, string>> = {
+const fonts = {
   widespace: {
     a: "ａ",
     b: "ｂ",
@@ -368,6 +368,17 @@ const fonts: Record<string, Record<string, string>> = {
     X: "𝚇",
     Y: "𝚈",
     Z: "𝚉",
+
+    "1": "𝟷",
+    "2": "𝟸",
+    "3": "𝟹",
+    "4": "𝟺",
+    "5": "𝟻",
+    "6": "𝟼",
+    "7": "𝟽",
+    "8": "𝟾",
+    "9": "𝟿",
+    "0": "𝟶",
 
     " ": " ",
   },
@@ -848,21 +859,7 @@ type FontsProxy = {
   [K in FontTypes]: (text: string) => string;
 };
 
-export type FontTypes =
-  | "bold"
-  | "fancy"
-  | "bold_italic"
-  | "fancy_italic"
-  | "redux"
-  | "widespace"
-  | "serif"
-  | "handwriting"
-  | "scriptbold"
-  | "script"
-  | "typewriter"
-  | "none"
-  | "moody"
-  | "double_struck";
+export type FontTypes = keyof typeof fonts;
 
 const FontSystem = {
   /**
@@ -873,9 +870,10 @@ const FontSystem = {
    * @returns {string} - The formatted text.
    */
   applyFonts(text: string, font: FontTypes = "none"): string {
-    const formattedText = text
+    const func = fonts[font];
+    const formattedText: string = text
       .split("")
-      .map((char: string | number) => fonts[font][char] || char)
+      .map((char) => (char in func ? func[char as keyof typeof func] : char))
       .join("");
     return formattedText;
   },

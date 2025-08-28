@@ -373,6 +373,16 @@ var fonts = {
     X: "\u{1D687}",
     Y: "\u{1D688}",
     Z: "\u{1D689}",
+    "1": "\u{1D7F7}",
+    "2": "\u{1D7F8}",
+    "3": "\u{1D7F9}",
+    "4": "\u{1D7FA}",
+    "5": "\u{1D7FB}",
+    "6": "\u{1D7FC}",
+    "7": "\u{1D7FD}",
+    "8": "\u{1D7FE}",
+    "9": "\u{1D7FF}",
+    "0": "\u{1D7F6}",
     " ": " "
   },
   bold: {
@@ -855,7 +865,8 @@ var FontSystem = {
    * @returns {string} - The formatted text.
    */
   applyFonts(text, font = "none") {
-    const formattedText = text.split("").map((char) => fonts[font][char] || char).join("");
+    const func = fonts[font];
+    const formattedText = text.split("").map((char) => char in func ? func[char] : char).join("");
     return formattedText;
   },
   /**

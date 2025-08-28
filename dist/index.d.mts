@@ -1,5 +1,7 @@
 import { FontTypes } from './font.mjs';
-export { default as FontSystem } from './font.mjs';
+export { default as FontSystem, fonts } from './font.mjs';
+
+declare const line = "\u2501";
 
 /**
  * Formats a title string by extracting and rearranging emojis and non-emoji characters based on a pattern.
@@ -9,6 +11,11 @@ export { default as FontSystem } from './font.mjs';
  * @returns {string} - The formatted title string.
  */
 declare function forceTitleFormat(str: string, pattern?: string): string;
+type StyleFormatter = (content: string, extra?: FormatOptions) => string;
+/**
+ * Creates a reusable formatter that formats title and content text with optional font styles and title patterns.
+ */
+declare function createFormat({ title, contentFont, titleFont, titlePattern, noFormat, lineLength, }: FormatOptionsNoContent): StyleFormatter;
 interface FormatOptions {
     title: string;
     content: string;
@@ -18,6 +25,15 @@ interface FormatOptions {
     noFormat?: boolean;
     lineLength?: number;
 }
+interface FormatOptionsNoContent {
+    title: string;
+    titleFont?: FontTypes;
+    contentFont?: FontTypes;
+    titlePattern?: string;
+    noFormat?: boolean;
+    lineLength?: number;
+}
+declare function normalizeFormatOverloads(arg1: string | FormatOptions, arg2?: string, arg3?: FontTypes | undefined): FormatOptions;
 /**
  * Formats title and content text.
  */
@@ -293,4 +309,4 @@ declare class Box {
 }
 declare const LiaIOLite: typeof Box;
 
-export { Box, LiaIOLite, UNIRedux, abbreviateNumber, autoBold, fontTag, forceTitleFormat, format };
+export { Box, type FormatOptions, type FormatOptionsNoContent, LiaIOLite, type StyleFormatter, UNIRedux, abbreviateNumber, autoBold, createFormat, fontTag, forceTitleFormat, format, line, normalizeFormatOverloads };

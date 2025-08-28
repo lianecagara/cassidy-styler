@@ -71,9 +71,13 @@ __export(index_exports, {
   UNIRedux: () => UNIRedux,
   abbreviateNumber: () => abbreviateNumber,
   autoBold: () => autoBold,
+  createFormat: () => createFormat,
   fontTag: () => fontTag,
+  fonts: () => fonts2,
   forceTitleFormat: () => forceTitleFormat,
-  format: () => format
+  format: () => format,
+  line: () => line,
+  normalizeFormatOverloads: () => normalizeFormatOverloads
 });
 module.exports = __toCommonJS(index_exports);
 
@@ -407,6 +411,16 @@ var fonts = {
     X: "\u{1D687}",
     Y: "\u{1D688}",
     Z: "\u{1D689}",
+    "1": "\u{1D7F7}",
+    "2": "\u{1D7F8}",
+    "3": "\u{1D7F9}",
+    "4": "\u{1D7FA}",
+    "5": "\u{1D7FB}",
+    "6": "\u{1D7FC}",
+    "7": "\u{1D7FD}",
+    "8": "\u{1D7FE}",
+    "9": "\u{1D7FF}",
+    "0": "\u{1D7F6}",
     " ": " "
   },
   bold: {
@@ -889,7 +903,8 @@ var FontSystem = {
    * @returns {string} - The formatted text.
    */
   applyFonts(text, font = "none") {
-    const formattedText = text.split("").map((char) => fonts[font][char] || char).join("");
+    const func = fonts[font];
+    const formattedText = text.split("").map((char) => char in func ? func[char] : char).join("");
     return formattedText;
   },
   /**
@@ -936,14 +951,22 @@ var font_default = FontSystem;
 // src/index.ts
 var line = "\u2501";
 function forceTitleFormat(str, pattern) {
-  pattern != null ? pattern : pattern = `{word} ${UNIRedux.charm} {emojis}`;
+  pattern != null ? pattern : pattern = `{emojis} {word}`;
   const emojiRegex = new RegExp("\\p{Emoji}", "gu");
   let emojis = [...str].filter((char) => emojiRegex.test(char)).join("");
   let nonEmojis = [...str].filter((char) => !emojiRegex.test(char)).join("").trim().replaceAll("|", "");
   const res = pattern.replaceAll("{word}", nonEmojis).replaceAll("{emojis}", emojis);
   return res;
 }
-function format(arg1, arg2, arg3) {
+function createFormat(options) {
+  return function(content, extra) {
+    const normalized = normalizeFormatOverloads(__spreadProps(__spreadValues(__spreadValues({}, options), extra != null ? extra : []), {
+      content
+    }));
+    return format(__spreadValues({}, normalized));
+  };
+}
+function normalizeFormatOverloads(arg1, arg2, arg3) {
   var _a, _b, _c, _d, _e;
   let options;
   if (typeof arg1 === "string" && typeof arg2 === "string") {
@@ -958,13 +981,16 @@ function format(arg1, arg2, arg3) {
   (_c = options.titlePattern) != null ? _c : options.titlePattern = void 0;
   (_d = options.noFormat) != null ? _d : options.noFormat = false;
   (_e = options.lineLength) != null ? _e : options.lineLength = 15;
-  return `${fonts2[options.titleFont](
+  return options;
+}
+function format(arg1, arg2, arg3) {
+  var _a, _b;
+  const options = normalizeFormatOverloads(arg1, arg2, arg3);
+  return `${fonts2[options.titleFont ? options.titleFont : "bold"](
     !options.noFormat ? forceTitleFormat(options.title, options.titlePattern) : options.title
   )}
-${line.repeat(options.lineLength)}
-${fonts2[options.contentFont](
-    autoBold(options.content)
-  )}`;
+${line.repeat((_a = options.lineLength) != null ? _a : 15)}
+${fonts2[(_b = options.contentFont) != null ? _b : "fancy"](autoBold(options.content))}`;
 }
 var UNIRedux = class {
 };
@@ -1131,6 +1157,10 @@ function autoBold(text) {
   text = text.replace(
     /\*\*(.*?)\*\*/g,
     (_, text2) => fonts2.bold(text2)
+  );
+  text = text.replace(
+    /`(.*?)`/g,
+    (_, text2) => fonts2.typewriter(text2)
   );
   return text;
 }
@@ -1378,8 +1408,12 @@ var LiaIOLite = Box;
   UNIRedux,
   abbreviateNumber,
   autoBold,
+  createFormat,
   fontTag,
+  fonts,
   forceTitleFormat,
-  format
+  format,
+  line,
+  normalizeFormatOverloads
 });
 //# sourceMappingURL=index.js.map
